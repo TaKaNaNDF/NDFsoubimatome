@@ -315,6 +315,23 @@ async function saveToGitHub() {
     }
 }
 
+// GitHubからデータを取得する関数を追加
+async function loadFromGitHub() {
+    try {
+        await loadDataFromJSON();
+        // 現在のビューを更新
+        if (currentCategory) {
+            showEquipmentList(currentCategory);
+        } else {
+            showCategoryView();
+        }
+        alert('GitHubからデータを取得しました！');
+    } catch (error) {
+        console.error('データの取得に失敗しました:', error);
+        alert('データの取得に失敗しました。');
+    }
+}
+
 function continueAddEquipment(image) {
     const name = document.getElementById('equipmentName').value;
     const category = document.getElementById('equipmentCategory').value;
