@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>電波人間 装備データベース</title>
-    <!-- ここを style.css から index.css に変更 -->
-    <link rel="stylesheet" href="index.css"> 
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
@@ -17,6 +16,21 @@
             <h1 class="title">電波人間 装備データベース</h1>
             <input type="text" class="search-box" id="searchBox" placeholder="装備名やタグで検索...">
         </div>
+
+            <!-- 新機能: タグ検索と☆の数検索 -->
+            <div class="search-filters">
+                <input type="text" id="tagSearchBox" placeholder="タグを入力 (AND検索)" class="search-box">
+                <select id="starFilter" class="search-box">
+                    <option value="">☆の数で検索</option>
+                    <option value="1">☆1</option>
+                    <option value="2">☆2</option>
+                    <option value="3">☆3</option>
+                    <option value="4">☆4</option>
+                    <option value="5">☆5</option>
+                </select>
+                <button onclick="applyAdvancedSearch()" class="btn btn-primary">検索</button>
+            </div>
+        </div>        
 
         <div id="categoryView" class="category-grid">
             <div class="category-item" data-category="ふく">
@@ -48,19 +62,16 @@
         <div id="equipmentView" class="equipment-list">
             <button class="back-button" onclick="showCategoryView()">← カテゴリ一覧に戻る</button>
             <div id="equipmentList"></div>
-            <div class="edit-buttons-container">
-                <!-- 編集・削除ボタンはJSで動的に追加される -->
-            </div>
         </div>
 
         <button class="add-button" onclick="openModal()">+</button>
     </div>
 
-    <!-- 装備追加/編集モーダル -->
+    <!-- 装備追加モーダル -->
     <div id="addModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle" class="modal-title">装備を追加</h2>
+            <h2 class="modal-title">装備を追加</h2>
             <form id="equipmentForm">
                 <div class="form-group">
                     <label class="form-label">装備名</label>
@@ -91,8 +102,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">画像ファイル</label>
-                    <input type="file" id="equipmentImageFile" class="form-input" accept="image/*">
-                    <p class="text-sm text-gray-500 mt-1">※編集時は新しい画像を選択しない場合、既存の画像が維持されます。</p>
+                    <input type="file" id="equipmentImageFile" class="form-input" accept="image/*" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">効果</label>
@@ -106,34 +116,9 @@
                 </div>
                 <div class="button-group">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
-                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="submit" class="btn btn-primary">追加</button>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <!-- Custom Message Modal -->
-    <div id="messageModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeMessageModal()">&times;</span>
-            <h2 id="messageModalTitle" class="modal-title"></h2>
-            <p id="messageModalBody" class="modal-body"></p>
-            <div class="button-group justify-center">
-                <button class="btn btn-primary" onclick="closeMessageModal()">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Custom Confirmation Modal -->
-    <div id="confirmModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeConfirmModal(false)">&times;</span>
-            <h2 id="confirmModalTitle" class="modal-title"></h2>
-            <p id="confirmModalBody" class="modal-body"></p>
-            <div class="button-group justify-center">
-                <button class="btn btn-secondary" onclick="closeConfirmModal(false)">キャンセル</button>
-                <button class="btn btn-primary" onclick="closeConfirmModal(true)">OK</button>
-            </div>
         </div>
     </div>
 
