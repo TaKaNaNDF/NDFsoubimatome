@@ -753,6 +753,50 @@
             loadDataFromJSON();
         });
 
+        // 装備名重複チェック関数
+        function checkDuplicateEquipmentName(name, excludeId = null) {
+            const trimmedName = name.trim();
+            if (!trimmedName) return [];
+            
+            return equipmentData.filter(item => {
+                return item.name.trim() === trimmedName && item.id !== excludeId;
+            });
+        }
+
+        // 重複警告の表示/非表示
+        function toggleDuplicateWarning(duplicates) {
+            const warningElement = document.getElementById('duplicateWarning');
+            const nameInput = document.getElementById('equipmentName');
+            const duplicateList = document.getElementById('duplicateEquipmentList');
+            
+            if (duplicates.length > 0) {
+                // 重複装備の一覧を表示
+                duplicateList.innerHTML = duplicates.map(item => `
+                    <div class="duplicate-equipment-item">
+                        <img src="${item.image}" alt="${item.name}" class="duplicate-equipment-image">
+                        <div class="duplicate-equipment-info">
+                            <div class="duplicate-equipment-name">${item.name}</div>
+                            <div class="duplicate-equipment-category">${item.category} (☆${item.stars})</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                warningElement.classList.remove('hidden');
+                nameInput.classList.add('duplicate');
+            } else {
+                warningElement.classList.add('hidden');
+                nameInput.classList.remove('duplicate');
+            }
+        }
+
+        // 装備名入力時のイベントハンドラ
+        function handleEquipmentNameInput() {
+            const nameInput = document.getElementById('equipmentName');
+            const name = nameInput.value;
+            const duplicates = checkDuplicateEquipmentName(name, editingEquipmentId);
+            toggleDuplicateWarning(duplicates);
+        }
+
         // メッセージモーダル表示
         function showMessageModal(title, message) {
             document.getElementById('messageModalTitle').innerText = title;
