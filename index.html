@@ -4,7 +4,560 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>電波人間 装備データベース</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #006064;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #4dd0e1;
+            border-radius: 25px;
+            font-size: 1.1em;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #00acc1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* フィルター関連のスタイル */
+        .filter-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #006064;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .star-filter-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .star-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .star-checkbox:hover {
+            background: #e0f7fa;
+            border-color: #4dd0e1;
+        }
+
+        .star-checkbox input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .star-checkbox.active {
+            background: #4dd0e1;
+            color: white;
+        }
+
+        .tag-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .tag-filter-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f5f5f5;
+            padding: 6px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            font-size: 0.9em;
+        }
+
+        .tag-filter-item:hover {
+            background: #e0f7fa;
+            border-color: #4dd0e1;
+        }
+
+        .tag-filter-item.active {
+            background: #4dd0e1;
+            color: white;
+        }
+
+        .tag-filter-item input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .filter-toggle {
+            background: #00acc1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .filter-toggle:hover {
+            background: #006064;
+        }
+
+        .filter-reset {
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .filter-reset:hover {
+            background: #bdbdbd;
+        }
+
+        .filter-status {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .category-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .category-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .category-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            border-color: #4dd0e1;
+        }
+
+        .category-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #006064;
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .equipment-list {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .equipment-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .equipment-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .equipment-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .equipment-info {
+            flex: 1;
+        }
+
+        .equipment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .star-rating {
+            display: flex;
+            margin-right: 10px;
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 1.2em;
+            margin-right: 2px;
+        }
+
+        .equipment-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #006064;
+        }
+
+        .equipment-effect {
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .equipment-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tag {
+            background: #4dd0e1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .add-button {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #00acc1;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .add-button:hover {
+            background: #006064;
+            transform: scale(1.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            color: #006064;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #006064;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #4dd0e1;
+        }
+
+        .form-textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .button-group.justify-center {
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #00acc1;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #006064;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #bdbdbd;
+        }
+
+        .close {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #006064;
+        }
+
+        .back-button {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #4dd0e1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #00acc1;
+        }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            align-items: center;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            min-height: 50px;
+        }
+
+        .tag-input {
+            border: none;
+            outline: none;
+            flex: 1;
+            min-width: 100px;
+            padding: 4px;
+        }
+
+        .tag-item {
+            background: #4dd0e1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 40px;
+        }
+
+        .edit-buttons-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .edit-button, .delete-button {
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s ease;
+        }
+
+        .edit-button {
+            background-color: #00acc1;
+            color: white;
+            border: none;
+        }
+
+        .edit-button:hover {
+            background-color: #006064;
+        }
+
+        .delete-button {
+            background-color: #f44336;
+            color: white;
+            border: none;
+        }
+
+        .delete-button:hover {
+            background-color: #d32f2f;
+        }
+
+        .text-sm {
+            font-size: 0.875rem;
+        }
+
+        .text-gray-500 {
+            color: #6b7280;
+        }
+
+        .mt-1 {
+            margin-top: 0.25rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -15,22 +568,36 @@
         <div class="header">
             <h1 class="title">電波人間 装備データベース</h1>
             <input type="text" class="search-box" id="searchBox" placeholder="装備名やタグで検索...">
+            <div style="text-align: center; margin-top: 10px;">
+                <button class="filter-toggle" onclick="toggleFilterVisibility()" id="filterToggleBtn">フィルターを隠す</button>
+            </div>
         </div>
 
-            <!-- 新機能: タグ検索と☆の数検索 -->
-            <div class="search-filters">
-                <input type="text" id="tagSearchBox" placeholder="タグを入力 (AND検索)" class="search-box">
-                <select id="starFilter" class="search-box">
-                    <option value="">☆の数で検索</option>
-                    <option value="1">☆1</option>
-                    <option value="2">☆2</option>
-                    <option value="3">☆3</option>
-                    <option value="4">☆4</option>
-                    <option value="5">☆5</option>
-                </select>
-                <button onclick="applyAdvancedSearch()" class="btn btn-primary">検索</button>
+        <!-- フィルター機能 -->
+        <div class="filter-container" id="filterContainer">
+            <div class="filter-section">
+                <label class="filter-label">☆数で絞り込み</label>
+                <div class="star-filter-container" id="starFilterContainer">
+                    <!-- JavaScriptで動的生成 -->
+                </div>
             </div>
-        </div>        
+
+            <div class="filter-section">
+                <label class="filter-label">タグで絞り込み (複数選択可能)</label>
+                <div class="tag-filter-container" id="tagFilterContainer">
+                    <!-- JavaScriptで動的生成 -->
+                </div>
+            </div>
+
+            <div class="filter-actions">
+                <div class="filter-status" id="filterStatus">
+                    <!-- フィルター状況を表示 -->
+                </div>
+                <div>
+                    <button class="filter-reset" onclick="resetFilters()">フィルターをリセット</button>
+                </div>
+            </div>
+        </div>
 
         <div id="categoryView" class="category-grid">
             <div class="category-item" data-category="ふく">
@@ -62,16 +629,19 @@
         <div id="equipmentView" class="equipment-list">
             <button class="back-button" onclick="showCategoryView()">← カテゴリ一覧に戻る</button>
             <div id="equipmentList"></div>
+            <div class="edit-buttons-container">
+                <!-- 編集・削除ボタンはJSで動的に追加される -->
+            </div>
         </div>
 
         <button class="add-button" onclick="openModal()">+</button>
     </div>
 
-    <!-- 装備追加モーダル -->
+    <!-- 装備追加/編集モーダル -->
     <div id="addModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2 class="modal-title">装備を追加</h2>
+            <h2 id="modalTitle" class="modal-title">装備を追加</h2>
             <form id="equipmentForm">
                 <div class="form-group">
                     <label class="form-label">装備名</label>
@@ -102,7 +672,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">画像ファイル</label>
-                    <input type="file" id="equipmentImageFile" class="form-input" accept="image/*" required>
+                    <input type="file" id="equipmentImageFile" class="form-input" accept="image/*">
+                    <p class="text-sm text-gray-500 mt-1">※編集時は新しい画像を選択しない場合、既存の画像が維持されます。</p>
                 </div>
                 <div class="form-group">
                     <label class="form-label">効果</label>
@@ -116,12 +687,580 @@
                 </div>
                 <div class="button-group">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
-                    <button type="submit" class="btn btn-primary">追加</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Custom Message Modal -->
+    <div id="messageModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeMessageModal()">&times;</span>
+            <h2 id="messageModalTitle" class="modal-title"></h2>
+            <p id="messageModalBody" class="modal-body"></p>
+            <div class="button-group justify-center">
+                <button class="btn btn-primary" onclick="closeMessageModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeConfirmModal(false)">&times;</span>
+            <h2 id="confirmModalTitle" class="modal-title"></h2>
+            <p id="confirmModalBody" class="modal-body"></p>
+            <div class="button-group justify-center">
+                <button class="btn btn-secondary" onclick="closeConfirmModal(false)">キャンセル</button>
+                <button class="btn btn-primary" onclick="closeConfirmModal(true)">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // データストレージ
+        let equipmentData = [];
+        let currentCategory = '';
+        let currentTags = [];
+
+        // フィルター関連の変数
+        let selectedStars = new Set();
+        let selectedFilterTags = new Set();
+        let isFilterVisible = true;
+
+        // モーダルの状態管理
+        let isEditing = false;
+        let editingEquipmentId = null;
+
+        // カスタムモーダルのコールバック用
+        let confirmCallback = null;
+
+        // 初期化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDataFromJSON();
+        });
+
+        // メッセージモーダル表示
+        function showMessageModal(title, message) {
+            document.getElementById('messageModalTitle').innerText = title;
+            document.getElementById('messageModalBody').innerText = message;
+            document.getElementById('messageModal').style.display = 'block';
+        }
+
+        // メッセージモーダル非表示
+        function closeMessageModal() {
+            document.getElementById('messageModal').style.display = 'none';
+        }
+
+        // 確認モーダル表示
+        function showConfirmModal(title, message, callback) {
+            document.getElementById('confirmModalTitle').innerText = title;
+            document.getElementById('confirmModalBody').innerText = message;
+            confirmCallback = callback;
+            document.getElementById('confirmModal').style.display = 'block';
+        }
+
+        // 確認モーダル非表示
+        function closeConfirmModal(result) {
+            document.getElementById('confirmModal').style.display = 'none';
+            if (confirmCallback) {
+                confirmCallback(result);
+                confirmCallback = null;
+            }
+        }
+
+        function setupEventListeners() {
+            // カテゴリクリック
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    showEquipmentList(category);
+                });
+            });
+
+            // 検索機能
+            document.getElementById('searchBox').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                if (searchTerm || selectedStars.size > 0 || selectedFilterTags.size > 0) {
+                    showFilteredResults();
+                } else {
+                    showCategoryView();
+                }
+            });
+
+            // タグ入力
+            const tagInput = document.getElementById('tagInput');
+            if (tagInput) {
+                tagInput.removeEventListener('keypress', handleTagInputKeypress);
+                tagInput.addEventListener('keypress', handleTagInputKeypress);
+            }
+
+            // フォーム送信
+            document.getElementById('equipmentForm').removeEventListener('submit', handleEquipmentSubmit);
+            document.getElementById('equipmentForm').addEventListener('submit', handleEquipmentSubmit);
+        }
+
+        // タグ入力のイベントハンドラ
+        function handleTagInputKeypress(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                addTag(this.value.trim());
+                this.value = '';
+            }
+        }
+
+        // フィルター関連の関数
+        function initializeFilters() {
+            // ☆数フィルターの初期化
+            const starContainer = document.getElementById('starFilterContainer');
+            starContainer.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const starElement = document.createElement('div');
+                starElement.className = 'star-checkbox';
+                starElement.innerHTML = `
+                    <input type="checkbox" id="star${i}" onchange="toggleStarFilter(${i})">
+                    <label for="star${i}">☆${i}</label>
+                `;
+                starContainer.appendChild(starElement);
+            }
+
+            // タグフィルターの初期化
+            updateTagFilters();
+            updateFilterStatus();
+        }
+
+        function getAllTags() {
+            const allTags = new Set();
+            equipmentData.forEach(item => {
+                item.tags.forEach(tag => allTags.add(tag));
+            });
+            return Array.from(allTags).sort();
+        }
+
+        function updateTagFilters() {
+            const tagContainer = document.getElementById('tagFilterContainer');
+            const allTags = getAllTags();
+            
+            tagContainer.innerHTML = '';
+            
+            if (allTags.length === 0) {
+                tagContainer.innerHTML = '<div style="color: #999; font-style: italic;">タグがありません</div>';
+                return;
+            }
+
+            allTags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag-filter-item';
+                if (selectedFilterTags.has(tag)) {
+                    tagElement.classList.add('active');
+                }
+                
+                tagElement.innerHTML = `
+                    <input type="checkbox" id="tag-${tag}" ${selectedFilterTags.has(tag) ? 'checked' : ''} onchange="toggleTagFilter('${tag}')">
+                    <label for="tag-${tag}">${tag}</label>
+                `;
+                tagContainer.appendChild(tagElement);
+            });
+        }
+
+        function toggleStarFilter(stars) {
+            const checkbox = document.getElementById(`star${stars}`);
+            const container = checkbox.parentElement;
+            
+            if (selectedStars.has(stars)) {
+                selectedStars.delete(stars);
+                container.classList.remove('active');
+            } else {
+                selectedStars.add(stars);
+                container.classList.add('active');
+            }
+            
+            updateFilterStatus();
+            applyFilters();
+        }
+
+        function toggleTagFilter(tag) {
+            const checkbox = document.getElementById(`tag-${tag}`);
+            const container = checkbox.parentElement;
+            
+            if (selectedFilterTags.has(tag)) {
+                selectedFilterTags.delete(tag);
+                container.classList.remove('active');
+            } else {
+                selectedFilterTags.add(tag);
+                container.classList.add('active');
+            }
+            
+            updateFilterStatus();
+            applyFilters();
+        }
+
+        function updateFilterStatus() {
+            const statusElement = document.getElementById('filterStatus');
+            const activeFilters = [];
+            
+            if (selectedStars.size > 0) {
+                activeFilters.push(`☆数: ${Array.from(selectedStars).sort().join(', ')}`);
+            }
+            
+            if (selectedFilterTags.size > 0) {
+                activeFilters.push(`タグ: ${Array.from(selectedFilterTags).join(', ')}`);
+            }
+            
+            if (activeFilters.length > 0) {
+                statusElement.innerText = `アクティブフィルター: ${activeFilters.join(' | ')}`;
+            } else {
+                statusElement.innerText = 'フィルターなし';
+            }
+        }
+
+        function resetFilters() {
+            selectedStars.clear();
+            selectedFilterTags.clear();
+            
+            // チェックボックスのリセット
+            document.querySelectorAll('.star-checkbox').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('input').checked = false;
+            });
+            
+            document.querySelectorAll('.tag-filter-item').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('input').checked = false;
+            });
+            
+            // 検索ボックスもクリア
+            document.getElementById('searchBox').value = '';
+            
+            updateFilterStatus();
+            showCategoryView();
+        }
+
+        function toggleFilterVisibility() {
+            const container = document.getElementById('filterContainer');
+            const toggle = document.getElementById('filterToggleBtn');
+            
+            if (isFilterVisible) {
+                container.classList.add('hidden');
+                toggle.innerText = 'フィルターを表示';
+                isFilterVisible = false;
+            } else {
+                container.classList.remove('hidden');
+                toggle.innerText = 'フィルターを隠す';
+                isFilterVisible = true;
+            }
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            if (searchTerm || selectedStars.size > 0 || selectedFilterTags.size > 0) {
+                showFilteredResults();
+            } else {
+                showCategoryView();
+            }
+        }
+
+        function showFilteredResults() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            
+            let filteredEquipment = equipmentData.filter(item => {
+                // テキスト検索
+                const matchesText = !searchTerm || 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.effect.toLowerCase().includes(searchTerm) ||
+                    item.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                // ☆数フィルター
+                const matchesStars = selectedStars.size === 0 || selectedStars.has(item.stars);
+                
+                // タグフィルター（AND条件）
+                const matchesTags = selectedFilterTags.size === 0 || 
+                    Array.from(selectedFilterTags).every(filterTag => 
+                        item.tags.includes(filterTag)
+                    );
+                
+                return matchesText && matchesStars && matchesTags;
+            });
+            
+            document.getElementById('categoryView').style.display = 'none';
+            document.getElementById('equipmentView').style.display = 'block';
+            renderEquipmentList(filteredEquipment);
+        }
+
+        function showCategoryView() {
+            document.getElementById('categoryView').style.display = 'grid';
+            document.getElementById('equipmentView').style.display = 'none';
+            currentCategory = '';
+        }
+
+        function showEquipmentList(category) {
+            currentCategory = category;
+            document.getElementById('categoryView').style.display = 'none';
+            document.getElementById('equipmentView').style.display = 'block';
+            
+            const filteredEquipment = equipmentData.filter(item => item.category === category);
+            renderEquipmentList(filteredEquipment);
+        }
+
+        function renderEquipmentList(equipment) {
+            const container = document.getElementById('equipmentList');
+            
+            if (equipment.length === 0) {
+                container.innerHTML = '<div class="no-results">該当する装備が見つかりませんでした</div>';
+                return;
+            }
+
+            container.innerHTML = equipment.map(item => `
+                <div class="equipment-item">
+                    <img src="${item.image}" alt="${item.name}" class="equipment-image">
+                    <div class="equipment-info">
+                        <div class="equipment-header">
+                            <div class="star-rating">
+                                ${'★'.repeat(item.stars)}
+                            </div>
+                            <div class="equipment-name">${item.name}</div>
+                        </div>
+                        <div class="equipment-effect">${item.effect}</div>
+                        <div class="equipment-tags">
+                            ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="edit-buttons-container">
+                        <button class="edit-button" onclick="editEquipment(${item.id})">編集</button>
+                        <button class="delete-button" onclick="deleteEquipment(${item.id})">削除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // モーダルを開く
+        function openModal(mode = 'add', equipment = null) {
+            document.getElementById('addModal').style.display = 'block';
+            document.getElementById('equipmentForm').reset();
+            currentTags = [];
+            renderTags();
+
+            document.getElementById('equipmentImageFile').value = '';
+
+            if (mode === 'edit' && equipment) {
+                isEditing = true;
+                editingEquipmentId = equipment.id;
+                document.getElementById('modalTitle').innerText = '装備を編集';
+                document.getElementById('equipmentName').value = equipment.name;
+                document.getElementById('equipmentCategory').value = equipment.category;
+                document.getElementById('equipmentStars').value = equipment.stars;
+                document.getElementById('equipmentEffect').value = equipment.effect;
+                currentTags = [...equipment.tags];
+                renderTags();
+            } else {
+                isEditing = false;
+                editingEquipmentId = null;
+                document.getElementById('modalTitle').innerText = '装備を追加';
+            }
+        }
+
+        // モーダルを閉じる
+        function closeModal() {
+            document.getElementById('addModal').style.display = 'none';
+            document.getElementById('equipmentForm').reset();
+            currentTags = [];
+            renderTags();
+            isEditing = false;
+            editingEquipmentId = null;
+        }
+
+        function addTag(tagText) {
+            if (tagText && !currentTags.includes(tagText)) {
+                currentTags.push(tagText);
+                renderTags();
+            }
+        }
+
+        function removeTag(tagText) {
+            currentTags = currentTags.filter(tag => tag !== tagText);
+            renderTags();
+        }
+
+        function renderTags() {
+            const container = document.getElementById('tagContainer');
+            const tagInputHtml = '<input type="text" id="tagInput" class="tag-input" placeholder="タグを入力してEnterキーを押してください">';
+            container.innerHTML = currentTags.map(tag => `
+                <span class="tag-item">
+                    ${tag}
+                    <span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>
+                </span>
+            `).join('') + tagInputHtml;
+            
+            const newTagInput = document.getElementById('tagInput');
+            if (newTagInput) {
+                newTagInput.removeEventListener('keypress', handleTagInputKeypress);
+                newTagInput.addEventListener('keypress', handleTagInputKeypress);
+            }
+        }
+
+        // フォーム送信のメインハンドラ
+        async function handleEquipmentSubmit(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('equipmentName').value;
+            const category = document.getElementById('equipmentCategory').value;
+            const stars = parseInt(document.getElementById('equipmentStars').value);
+            const effect = document.getElementById('equipmentEffect').value;
+            const fileInput = document.getElementById('equipmentImageFile');
+
+            let image = null;
+
+            if (fileInput.files.length > 0) {
+                image = await new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        resolve(reader.result);
+                    };
+                    reader.readAsDataURL(fileInput.files[0]);
+                });
+            } else if (isEditing && editingEquipmentId !== null) {
+                const existingEquipment = equipmentData.find(e => e.id === editingEquipmentId);
+                if (existingEquipment) {
+                    image = existingEquipment.image;
+                }
+            } else {
+                showMessageModal('エラー', '画像ファイルを選択してください。');
+                return;
+            }
+
+            if (isEditing) {
+                const index = equipmentData.findIndex(e => e.id === editingEquipmentId);
+                if (index !== -1) {
+                    equipmentData[index] = {
+                        id: editingEquipmentId,
+                        name, category, stars, image, effect,
+                        tags: [...currentTags]
+                    };
+                    showMessageModal('更新完了', '装備が更新されました！');
+                }
+            } else {
+                const newId = equipmentData.length > 0 ? Math.max(...equipmentData.map(e => e.id)) + 1 : 1;
+                const newEquipment = {
+                    id: newId,
+                    name, category, stars, image, effect,
+                    tags: [...currentTags]
+                };
+                equipmentData.push(newEquipment);
+                showMessageModal('追加完了', '装備が追加されました！');
+            }
+
+            // フィルターを更新
+            updateTagFilters();
+            
+            closeModal();
+            showEquipmentList(category);
+        }
+
+        // モーダル外クリックで閉じる
+        window.onclick = function(event) {
+            const addModal = document.getElementById('addModal');
+            const messageModal = document.getElementById('messageModal');
+            const confirmModal = document.getElementById('confirmModal');
+            if (event.target === addModal) {
+                closeModal();
+            } else if (event.target === messageModal) {
+                closeMessageModal();
+            } else if (event.target === confirmModal) {
+                // 確認モーダルは外クリックでは閉じない
+            }
+        }
+
+        // 装備編集
+        function editEquipment(id) {
+            const item = equipmentData.find(e => e.id === id);
+            if (!item) return;
+            openModal('edit', item);
+        }
+
+        // 装備削除
+        function deleteEquipment(id) {
+            showConfirmModal('削除の確認', 'この装備を削除しますか？', (result) => {
+                if (result) {
+                    equipmentData = equipmentData.filter(e => e.id !== id);
+                    updateTagFilters(); // タグフィルターを更新
+                    showEquipmentList(currentCategory);
+                    showMessageModal('削除完了', '装備が削除されました！');
+                }
+            });
+        }
+
+        // GitHubに保存
+        async function saveToGitHub() {
+            const content = btoa(unescape(encodeURIComponent(JSON.stringify(equipmentData, null, 2))));
+
+            const repo = 'NDFsoubimatome';
+            const path = 'soubihyou.json';
+            const token = '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';
+            const user = 'TaKaNaNDF';
+
+            try {
+                const getRes = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+                    headers: { Authorization: `token ${token}` }
+                });
+
+                let sha = null;
+                if (getRes.ok) {
+                    const data = await getRes.json();
+                    sha = data.sha;
+                } else if (getRes.status !== 404) {
+                    throw new Error('GitHubからファイル情報を取得できませんでした。');
+                }
+
+                const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
+                    method: 'PUT',
+                    headers: {
+                        Authorization: `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update equipment data',
+                        content,
+                        sha
+                    })
+                });
+
+                if (res.ok) {
+                    showMessageModal('保存完了', 'GitHubに保存されました！');
+                } else {
+                    const errorData = await res.json();
+                    console.error('保存に失敗しました:', errorData);
+                    showMessageModal('保存失敗', `保存に失敗しました... エラー: ${errorData.message || '不明なエラー'}`);
+                }
+            } catch (e) {
+                console.error('GitHub保存中にエラーが発生しました:', e);
+                showMessageModal('エラー', `GitHub保存中にエラーが発生しました: ${e.message}`);
+            }
+        }
+
+        // JSONデータ読み込み
+        async function loadDataFromJSON() {
+            try {
+                const res = await fetch('soubihyou.json');
+                if (!res.ok) {
+                    if (res.status === 404) {
+                        console.warn('soubihyou.jsonが見つかりませんでした。新しいデータで開始します。');
+                    } else {
+                        throw new Error(`データ読み込み失敗: ${res.status} ${res.statusText}`);
+                    }
+                }
+                const data = res.ok ? await res.json() : [];
+                equipmentData = data;
+            } catch (e) {
+                console.error('装備データの読み込みに失敗しました:', e);
+                equipmentData = [];
+                showMessageModal('データ読み込みエラー', '装備データの読み込みに失敗しました。新しいデータで開始します。');
+            } finally {
+                setupEventListeners();
+                initializeFilters(); // フィルターを初期化
+                showCategoryView();
+            }
+        }
+    </script>
 </body>
 </html>
