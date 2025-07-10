@@ -557,6 +557,17 @@
         .hidden {
             display: none;
         }
+
+        .category-header {
+            background: #4dd0e1;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -628,6 +639,7 @@
 
         <div id="equipmentView" class="equipment-list">
             <button class="back-button" onclick="showCategoryView()">← カテゴリ一覧に戻る</button>
+            <div id="categoryHeader" class="category-header"></div>
             <div id="equipmentList"></div>
             <div class="edit-buttons-container">
                 <!-- 編集・削除ボタンはJSで動的に追加される -->
@@ -785,7 +797,12 @@
                 if (searchTerm || selectedStars.size > 0 || selectedFilterTags.size > 0) {
                     showFilteredResults();
                 } else {
-                    showCategoryView();
+                    // フィルターがない場合の処理を改善
+                    if (currentCategory) {
+                        showEquipmentList(currentCategory);
+                    } else {
+                        showCategoryView();
+                    }
                 }
             });
 
@@ -832,9 +849,16 @@
 
         function getAllTags() {
             const allTags = new Set();
-            equipmentData.forEach(item => {
+            
+            // 現在のカテゴリがある場合は、そのカテゴリのタグのみを取得
+            const targetEquipment = currentCategory 
+                ? equipmentData.filter(item => item.category === currentCategory)
+                : equipmentData;
+                
+            targetEquipment.forEach(item => {
                 item.tags.forEach(tag => allTags.add(tag));
             });
+            
             return Array.from(allTags).sort();
         }
 
@@ -845,7 +869,10 @@
             tagContainer.innerHTML = '';
             
             if (allTags.length === 0) {
-                tagContainer.innerHTML = '<div style="color: #999; font-style: italic;">タグがありません</div>';
+                const noTagsText = currentCategory 
+                    ? `${currentCategory}にはタグがありません`
+                    : 'タグがありません';
+                tagContainer.innerHTML = `<div style="color: #999; font-style: italic;">${noTagsText}</div>`;
                 return;
             }
 
@@ -909,9 +936,11 @@
             }
             
             if (activeFilters.length > 0) {
-                statusElement.innerText = `アクティブフィルター: ${activeFilters.join(' | ')}`;
+                const scope = currentCategory ? `（${currentCategory}内で）` : '（全体で）';
+                statusElement.innerText = `アクティブフィルター${scope}: ${activeFilters.join(' | ')}`;
             } else {
-                statusElement.innerText = 'フィルターなし';
+                const scope = currentCategory ? `（${currentCategory}内）` : '（全体）';
+                statusElement.innerText = `フィルターなし${scope}`;
             }
         }
 
@@ -934,7 +963,13 @@
             document.getElementById('searchBox').value = '';
             
             updateFilterStatus();
-            showCategoryView();
+            
+            // フィルターリセット後の表示処理を改善
+            if (currentCategory) {
+                showEquipmentList(currentCategory);
+            } else {
+                showCategoryView();
+            }
         }
 
         function toggleFilterVisibility() {
@@ -957,14 +992,24 @@
             if (searchTerm || selectedStars.size > 0 || selectedFilterTags.size > 0) {
                 showFilteredResults();
             } else {
-                showCategoryView();
+                // フィルターがない場合の処理を改善
+                if (currentCategory) {
+                    showEquipmentList(currentCategory);
+                } else {
+                    showCategoryView();
+                }
             }
         }
 
         function showFilteredResults() {
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
             
-            let filteredEquipment = equipmentData.filter(item => {
+            // 検索対象を現在のカテゴリに制限（修正のメイン部分）
+            let baseEquipment = currentCategory 
+                ? equipmentData.filter(item => item.category === currentCategory)
+                : equipmentData;
+            
+            let filteredEquipment = baseEquipment.filter(item => {
                 // テキスト検索
                 const matchesText = !searchTerm || 
                     item.name.toLowerCase().includes(searchTerm) ||
@@ -985,6 +1030,9 @@
             
             document.getElementById('categoryView').style.display = 'none';
             document.getElementById('equipmentView').style.display = 'block';
+            
+            // カテゴリヘッダーを更新
+            updateCategoryHeader();
             renderEquipmentList(filteredEquipment);
         }
 
@@ -992,6 +1040,8 @@
             document.getElementById('categoryView').style.display = 'grid';
             document.getElementById('equipmentView').style.display = 'none';
             currentCategory = '';
+            updateTagFilters(); // タグフィルターを更新
+            updateFilterStatus(); // フィルター状況を更新
         }
 
         function showEquipmentList(category) {
@@ -999,15 +1049,32 @@
             document.getElementById('categoryView').style.display = 'none';
             document.getElementById('equipmentView').style.display = 'block';
             
+            updateCategoryHeader();
+            updateTagFilters(); // カテゴリが変更されたときにタグフィルターを更新
+            updateFilterStatus(); // フィルター状況を更新
+            
             const filteredEquipment = equipmentData.filter(item => item.category === category);
             renderEquipmentList(filteredEquipment);
+        }
+
+        function updateCategoryHeader() {
+            const header = document.getElementById('categoryHeader');
+            if (currentCategory) {
+                header.innerText = `${currentCategory}の装備一覧`;
+                header.style.display = 'block';
+            } else {
+                header.style.display = 'none';
+            }
         }
 
         function renderEquipmentList(equipment) {
             const container = document.getElementById('equipmentList');
             
             if (equipment.length === 0) {
-                container.innerHTML = '<div class="no-results">該当する装備が見つかりませんでした</div>';
+                const noResultsText = currentCategory 
+                    ? `${currentCategory}で該当する装備が見つかりませんでした`
+                    : '該当する装備が見つかりませんでした';
+                container.innerHTML = `<div class="no-results">${noResultsText}</div>`;
                 return;
             }
 
@@ -1057,6 +1124,10 @@
                 isEditing = false;
                 editingEquipmentId = null;
                 document.getElementById('modalTitle').innerText = '装備を追加';
+                // 現在のカテゴリが選択されている場合はそれをデフォルトに設定
+                if (currentCategory) {
+                    document.getElementById('equipmentCategory').value = currentCategory;
+                }
             }
         }
 
@@ -1154,7 +1225,12 @@
             updateTagFilters();
             
             closeModal();
-            showEquipmentList(category);
+            // 現在のカテゴリで表示を更新
+            if (currentCategory === category) {
+                showEquipmentList(category);
+            } else {
+                showEquipmentList(category);
+            }
         }
 
         // モーダル外クリックで閉じる
@@ -1184,7 +1260,13 @@
                 if (result) {
                     equipmentData = equipmentData.filter(e => e.id !== id);
                     updateTagFilters(); // タグフィルターを更新
-                    showEquipmentList(currentCategory);
+                    
+                    // 現在の表示を更新
+                    if (currentCategory) {
+                        showEquipmentList(currentCategory);
+                    } else {
+                        showCategoryView();
+                    }
                     showMessageModal('削除完了', '装備が削除されました！');
                 }
             });
