@@ -637,11 +637,17 @@
 <body>
     <div class="container">
         <div style="text-align:right; padding:10px;">
+            <div id="saveStatus" style="font-size: 0.9em; color: #666; margin-bottom: 10px;">
+                <!-- 保存状況が表示される -->
+            </div>
             <button onclick="testGitHubConnection()" class="btn btn-secondary" style="margin-right: 10px;">接続テスト</button>
-            <button onclick="testCORSAndFetch()" class="btn btn-secondary" style="margin-right: 10px;">詳細診断</button>
+            <button onclick="exportDataAsJSON()" class="btn" style="background-color: #4caf50; color: white; margin-right: 10px;">JSONダウンロード</button>
+            <button onclick="importDataFromJSON()" class="btn" style="background-color: #2196f3; color: white; margin-right: 10px;">JSONインポート</button>
             <button onclick="saveToGitHub()" class="btn btn-primary" style="margin-right: 10px;">GitHubに保存</button>
-            <button onclick="saveToGitHubWithProxy()" class="btn" style="background-color: #ff9800; color: white;">プロキシ経由保存</button>
         </div>
+        
+        <!-- ファイルインポート用（非表示） -->
+        <input type="file" id="jsonImportFile" accept=".json" style="display: none;" onchange="handleJSONImport(event)">`
         
         <div class="header">
             <h1 class="title">電波人間 装備データベース</h1>
@@ -906,70 +912,156 @@
             showMessageModal('詳細診断結果', resultText);
         };
 
-        // プロキシを使用したGitHub API関数（代替案）
-        window.saveToGitHubWithProxy = async function() {
+        // JSONエクスポート機能
+        window.exportDataAsJSON = function() {
             try {
-                showMessageModal('保存中...', 'プロキシ経由でGitHubに保存しています...');
+                const dataStr = JSON.stringify(equipmentData, null, 2);
+                const blob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(blob);
                 
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(equipmentData, null, 2))));
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `soubihyou_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
                 
-                // CORS Anywhereプロキシを使用
-                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-                const targetUrl = 'https://api.github.com/repos/TaKaNaNDF/NDFsoubimatome/contents/soubihyou.json';
-                
-                const token = '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';
-                
-                // まずファイルの存在確認
-                let sha = null;
-                try {
-                    const getRes = await fetch(proxyUrl + targetUrl, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'User-Agent': 'Equipment-Database-App'
-                        }
-                    });
-                    
-                    if (getRes.ok) {
-                        const data = await getRes.json();
-                        sha = data.sha;
-                    }
-                } catch (e) {
-                    console.log('ファイルが存在しないか、取得に失敗しました');
-                }
-                
-                // ファイルを保存
-                const putData = {
-                    message: `Update equipment data - ${new Date().toISOString()}`,
-                    content: content
-                };
-                
-                if (sha) {
-                    putData.sha = sha;
-                }
-                
-                const response = await fetch(proxyUrl + targetUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'User-Agent': 'Equipment-Database-App'
-                    },
-                    body: JSON.stringify(putData)
-                });
-                
-                if (response.ok) {
-                    closeMessageModal();
-                    showMessageModal('保存完了', 'プロキシ経由でGitHubに正常に保存されました！');
-                } else {
-                    const errorText = await response.text();
-                    throw new Error(`保存失敗 (${response.status}): ${errorText}`);
-                }
-                
+                URL.revokeObjectURL(url);
+                showMessageModal('エクスポート完了', 'データがJSONファイルとしてダウンロードされました！');
             } catch (e) {
-                closeMessageModal();
-                showMessageModal('保存失敗', `プロキシ経由での保存に失敗しました: ${e.message}`);
+                showMessageModal('エクスポート失敗', `エクスポートに失敗しました: ${e.message}`);
             }
         };
+
+        // JSONインポート機能
+        window.importDataFromJSON = function() {
+            document.getElementById('jsonImportFile').click();
+        };
+
+        // JSONファイル処理
+        window.handleJSONImport = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!Array.isArray(importedData)) {
+                        throw new Error('無効なデータ形式です。配列である必要があります。');
+                    }
+
+                    // データ検証
+                    const validData = importedData.filter(item => {
+                        return item && 
+                               typeof item.name === 'string' && 
+                               typeof item.category === 'string' && 
+                               typeof item.stars === 'number' &&
+                               typeof item.effect === 'string' &&
+                               Array.isArray(item.tags);
+                    });
+
+                    if (validData.length !== importedData.length) {
+                        showMessageModal('警告', `${importedData.length - validData.length}個の無効なデータがスキップされました。\n有効なデータ: ${validData.length}個`);
+                    }
+
+                    equipmentData = validData;
+                    
+                    // IDを再割り当て
+                    equipmentData.forEach((item, index) => {
+                        item.id = index + 1;
+                    });
+
+                    // 表示を更新
+                    updateTagFilters();
+                    if (currentCategory) {
+                        showEquipmentList(currentCategory);
+                    } else {
+                        showCategoryView();
+                    }
+
+                    // ローカルストレージに保存
+                    saveToLocalStorage();
+
+                    showMessageModal('インポート完了', `${validData.length}個の装備データをインポートしました！`);
+                    
+                } catch (error) {
+                    showMessageModal('インポート失敗', `JSONファイルの読み込みに失敗しました: ${error.message}`);
+                }
+            };
+            
+            reader.readAsText(file);
+            event.target.value = ''; // ファイル選択をリセット
+        };
+
+        // ローカルストレージに保存
+        function saveToLocalStorage() {
+            try {
+                const dataStr = JSON.stringify(equipmentData);
+                localStorage.setItem('equipmentDatabase', dataStr);
+                localStorage.setItem('equipmentDatabase_lastSaved', new Date().toISOString());
+                console.log('ローカルストレージに保存しました');
+            } catch (e) {
+                console.warn('ローカルストレージへの保存に失敗:', e);
+            }
+        }
+
+        // ローカルストレージから読み込み
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('equipmentDatabase');
+                const lastSaved = localStorage.getItem('equipmentDatabase_lastSaved');
+                
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    if (Array.isArray(data)) {
+                        equipmentData = data;
+                        console.log(`ローカルストレージからデータを読み込みました (${data.length}件)`);
+                        if (lastSaved) {
+                            console.log(`最終保存日時: ${new Date(lastSaved).toLocaleString()}`);
+                        }
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.warn('ローカルストレージからの読み込みに失敗:', e);
+            }
+            return false;
+        }
+
+        // 保存状況表示の更新
+        function updateSaveStatus() {
+            const statusElement = document.getElementById('saveStatus');
+            const lastSaved = localStorage.getItem('equipmentDatabase_lastSaved');
+            const dataCount = equipmentData.length;
+            
+            if (lastSaved) {
+                const lastSavedDate = new Date(lastSaved);
+                const timeStr = lastSavedDate.toLocaleString();
+                statusElement.innerHTML = `💾 ${dataCount}件のデータがローカルに保存済み (${timeStr})`;
+            } else {
+                statusElement.innerHTML = `📊 ${dataCount}件のデータ (未保存)`;
+            }
+        }
+
+        // ローカルストレージに保存（更新版）
+        function saveToLocalStorage() {
+            try {
+                const dataStr = JSON.stringify(equipmentData);
+                localStorage.setItem('equipmentDatabase', dataStr);
+                localStorage.setItem('equipmentDatabase_lastSaved', new Date().toISOString());
+                console.log('ローカルストレージに保存しました');
+                updateSaveStatus(); // 保存状況表示を更新
+            } catch (e) {
+                console.warn('ローカルストレージへの保存に失敗:', e);
+            }
+        }
+
+        // 自動保存機能を追加（更新版）
+        function autoSave() {
+            saveToLocalStorage();
+        }
         async function testGitHubConnection() {
             showMessageModal('接続テスト中...', 'GitHubへの接続をテストしています...');
             
@@ -1671,6 +1763,9 @@
                 showMessageModal('追加完了', '装備が追加されました！');
             }
 
+            // 自動保存
+            autoSave();
+
             // フィルターを更新
             updateTagFilters();
             
@@ -1709,6 +1804,10 @@
             showConfirmModal('削除の確認', 'この装備を削除しますか？', (result) => {
                 if (result) {
                     equipmentData = equipmentData.filter(e => e.id !== id);
+                    
+                    // 自動保存
+                    autoSave();
+                    
                     updateTagFilters(); // タグフィルターを更新
                     
                     // 現在の表示を更新
@@ -1811,6 +1910,10 @@
                 if (res.ok) {
                     const responseData = await res.json();
                     console.log('GitHub保存成功:', responseData);
+                    
+                    // GitHubに保存成功したらローカルストレージも更新
+                    saveToLocalStorage();
+                    
                     showMessageModal('保存完了', 'GitHubに正常に保存されました！');
                 } else {
                     const errorText = await res.text();
@@ -1866,6 +1969,7 @@
             } finally {
                 setupEventListeners();
                 initializeFilters(); // フィルターを初期化
+                updateSaveStatus(); // 保存状況を表示
                 showCategoryView();
             }
         }
