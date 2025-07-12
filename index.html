@@ -54,25 +54,33 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        /* フィルター関連のスタイル */
+        .debug-info {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
         .filter-container {
             background: white;
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 30px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out; /* Add transition */
-            overflow: hidden; /* Hide overflow when collapsed */
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+            overflow: hidden;
         }
 
-        /* フィルター隠すための追加スタイル */
         .filter-container.hidden {
             max-height: 0;
             padding-top: 0;
             padding-bottom: 0;
             opacity: 0;
             margin-bottom: 0;
-            pointer-events: none; /* Disable interactions when hidden */
+            pointer-events: none;
         }
 
         .filter-section {
@@ -321,11 +329,6 @@
             font-weight: 500;
         }
 
-        /* 編集/削除ボタンは削除のため不要だが、念のためスタイルを維持 */
-        .edit-buttons-container {
-            display: none; /* 閲覧機能のみのため非表示 */
-        }
-
         .back-button {
             margin-bottom: 20px;
             padding: 10px 20px;
@@ -359,6 +362,24 @@
             font-size: 1.2em;
             font-weight: 600;
         }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ef9a9a;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #a5d6a7;
+        }
     </style>
 </head>
 <body>
@@ -371,22 +392,28 @@
             </div>
         </div>
 
+        <div id="debugInfo" class="debug-info" style="display: none;">
+            <div>読み込み状況: <span id="loadStatus">読み込み中...</span></div>
+            <div>データ件数: <span id="dataCount">0</span></div>
+            <div>使用URL: <span id="usedUrl"></span></div>
+        </div>
+
         <div class="filter-container" id="filterContainer">
             <div class="filter-section">
                 <label class="filter-label">☆数で絞り込み</label>
                 <div class="star-filter-container" id="starFilterContainer">
-                    </div>
+                </div>
             </div>
 
             <div class="filter-section">
                 <label class="filter-label">タグで絞り込み (複数選択可能)</label>
                 <div class="tag-filter-container" id="tagFilterContainer">
-                    </div>
+                </div>
             </div>
 
             <div class="filter-actions">
                 <div class="filter-status" id="filterStatus">
-                    </div>
+                </div>
                 <div>
                     <button class="filter-reset" onclick="resetFilters()">フィルターをリセット</button>
                 </div>
@@ -424,11 +451,8 @@
             <button class="back-button" onclick="showCategoryView()">← カテゴリ一覧に戻る</button>
             <div id="categoryHeader" class="category-header"></div>
             <div id="equipmentList"></div>
-            <div class="edit-buttons-container">
-                </div>
         </div>
-
-        </div>
+    </div>
 
     <script>
         // データストレージ
@@ -440,14 +464,21 @@
         let selectedFilterTags = new Set();
         let isFilterVisible = true;
 
-        // モーダル関連の関数（メッセージ、確認、追加/編集機能）をすべて削除
+        // デバッグ情報表示
+        function showDebugInfo() {
+            document.getElementById('debugInfo').style.display = 'block';
+        }
 
-        // 閲覧機能とフィルター機能に関連する関数のみを維持
+        function updateDebugInfo(status, count, url) {
+            document.getElementById('loadStatus').textContent = status;
+            document.getElementById('dataCount').textContent = count;
+            document.getElementById('usedUrl').textContent = url;
+        }
 
         // 初期化
         document.addEventListener('DOMContentLoaded', async function() {
-            // ローカルストレージからの読み込み機能は維持しない（GitHubからの読み込みに依存）
-            loadDataFromJSON();
+            showDebugInfo(); // デバッグ情報を表示
+            await loadDataFromJSON();
         });
 
         function setupEventListeners() {
@@ -465,7 +496,6 @@
                 if (searchTerm || selectedStars.size > 0 || selectedFilterTags.size > 0) {
                     showFilteredResults();
                 } else {
-                    // フィルターがない場合の処理を改善
                     if (currentCategory) {
                         showEquipmentList(currentCategory);
                     } else {
@@ -473,6 +503,32 @@
                     }
                 }
             });
+        }
+
+        function showFilteredResults() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            
+            let filteredEquipment = equipmentData.filter(item => {
+                const matchesText = !searchTerm || 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.effect.toLowerCase().includes(searchTerm) ||
+                    item.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                
+                const matchesStars = selectedStars.size === 0 || selectedStars.has(item.stars);
+                const matchesTags = selectedFilterTags.size === 0 || 
+                    Array.from(selectedFilterTags).every(filterTag => 
+                        item.tags.includes(filterTag)
+                    );
+                
+                return matchesText && matchesStars && matchesTags;
+            });
+            
+            document.getElementById('categoryView').style.display = 'none';
+            document.getElementById('equipmentView').style.display = 'block';
+            
+            currentCategory = '';
+            updateCategoryHeader();
+            renderEquipmentList(filteredEquipment);
         }
 
         // フィルター関連の関数
@@ -490,7 +546,6 @@
                 starContainer.appendChild(starElement);
             }
 
-            // タグフィルターの初期化
             updateTagFilters();
             updateFilterStatus();
         }
@@ -498,13 +553,14 @@
         function getAllTags() {
             const allTags = new Set();
             
-            // 現在のカテゴリがある場合は、そのカテゴリのタグのみを取得
             const targetEquipment = currentCategory 
                 ? equipmentData.filter(item => item.category === currentCategory)
                 : equipmentData;
                 
             targetEquipment.forEach(item => {
-                item.tags.forEach(tag => allTags.add(tag));
+                if (item.tags && Array.isArray(item.tags)) {
+                    item.tags.forEach(tag => allTags.add(tag));
+                }
             });
             
             return Array.from(allTags).sort();
@@ -596,7 +652,6 @@
             selectedStars.clear();
             selectedFilterTags.clear();
             
-            // チェックボックスのリセット
             document.querySelectorAll('.star-checkbox').forEach(el => {
                 el.classList.remove('active');
                 el.querySelector('input').checked = false;
@@ -607,12 +662,10 @@
                 el.querySelector('input').checked = false;
             });
             
-            // 検索ボックスもクリア
             document.getElementById('searchBox').value = '';
             
             updateFilterStatus();
             
-            // フィルターリセット後の表示処理を改善
             if (currentCategory) {
                 showEquipmentList(currentCategory);
             } else {
@@ -638,26 +691,22 @@
         function applyFilters() {
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
             
-            // 検索対象を現在のカテゴリに制限
             let baseEquipment = currentCategory 
                 ? equipmentData.filter(item => item.category === currentCategory)
                 : equipmentData;
             
             let filteredEquipment = baseEquipment.filter(item => {
-                // テキスト検索
                 const matchesText = !searchTerm || 
                     item.name.toLowerCase().includes(searchTerm) ||
                     item.effect.toLowerCase().includes(searchTerm) ||
-                    item.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                    (item.tags && item.tags.some(tag => tag.toLowerCase().includes(searchTerm)));
                 
-                // ☆数フィルター
                 const matchesStars = selectedStars.size === 0 || selectedStars.has(item.stars);
                 
-                // タグフィルター（AND条件）
                 const matchesTags = selectedFilterTags.size === 0 || 
-                    Array.from(selectedFilterTags).every(filterTag => 
+                    (item.tags && Array.from(selectedFilterTags).every(filterTag => 
                         item.tags.includes(filterTag)
-                    );
+                    ));
                 
                 return matchesText && matchesStars && matchesTags;
             });
@@ -665,7 +714,6 @@
             document.getElementById('categoryView').style.display = 'none';
             document.getElementById('equipmentView').style.display = 'block';
             
-            // カテゴリヘッダーを更新
             updateCategoryHeader();
             renderEquipmentList(filteredEquipment);
         }
@@ -674,8 +722,8 @@
             document.getElementById('categoryView').style.display = 'grid';
             document.getElementById('equipmentView').style.display = 'none';
             currentCategory = '';
-            updateTagFilters(); // タグフィルターを更新
-            updateFilterStatus(); // フィルター状況を更新
+            updateTagFilters();
+            updateFilterStatus();
         }
 
         function showEquipmentList(category) {
@@ -684,8 +732,8 @@
             document.getElementById('equipmentView').style.display = 'block';
             
             updateCategoryHeader();
-            updateTagFilters(); // カテゴリが変更されたときにタグフィルターを更新
-            updateFilterStatus(); // フィルター状況を更新
+            updateTagFilters();
+            updateFilterStatus();
             
             const filteredEquipment = equipmentData.filter(item => item.category === category);
             renderEquipmentList(filteredEquipment);
@@ -712,20 +760,19 @@
                 return;
             }
 
-            // IDは残すが、編集/削除ボタンは表示しないようにする
             container.innerHTML = equipment.map(item => `
                 <div class="equipment-item">
-                    <img src="${item.image}" alt="${item.name}" class="equipment-image">
+                    <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" class="equipment-image">
                     <div class="equipment-info">
                         <div class="equipment-header">
                             <div class="star-rating">
-                                ${'★'.repeat(item.stars)}
+                                ${'★'.repeat(item.stars || 0)}
                             </div>
-                            <div class="equipment-name">${item.name}</div>
+                            <div class="equipment-name">${item.name || '名前なし'}</div>
                         </div>
-                        <div class="equipment-effect">${item.effect}</div>
+                        <div class="equipment-effect">${item.effect || '効果なし'}</div>
                         <div class="equipment-tags">
-                            ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            ${(item.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
                         </div>
                     </div>
                 </div>
@@ -734,48 +781,72 @@
 
         // JSONデータ読み込み
         async function loadDataFromJSON() {
-            try {
-                // GitHubのraw URLを使用してデータを読み込み
-                // soubihyou.jsonはraw.githubusercontent.comから直接取得するため、?raw=trueは不要です。
-                const res = await fetch('https://raw.githubusercontent.com/TaKaNaNDF/NDFsoubimatome/main/soubihyou.json', {
-                    headers: {
-                        'Cache-Control': 'no-cache'
+            const urls = [
+                'https://raw.githubusercontent.com/TaKaNaNDF/NDFsoubimatome/main/soubihyou.json',
+                'https://github.com/TaKaNaNDF/NDFsoubimatome/raw/main/soubihyou.json',
+                './soubihyou.json'
+            ];
+
+            let loadSuccess = false;
+            let lastError = null;
+
+            for (const url of urls) {
+                try {
+                    updateDebugInfo('読み込み中...', 0, url);
+                    
+                    const res = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Cache-Control': 'no-cache, no-store, must-revalidate',
+                            'Pragma': 'no-cache',
+                            'Expires': '0'
+                        }
+                    });
+                    
+                    if (!res.ok) {
+                        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
                     }
-                });
-                
-                if (!res.ok) {
-                    if (res.status === 404) {
-                        console.warn('soubihyou.jsonが見つかりませんでした。新しいデータで開始します。');
-                        equipmentData = [];
-                    } else {
-                        console.error(`データ読み込み失敗: ${res.status} ${res.statusText}`);
-                        equipmentData = [];
-                        // 閲覧機能のみのため、エラーモーダル表示は省略
-                    }
-                } else {
+                    
                     const text = await res.text();
+                    console.log('取得したテキスト:', text.substring(0, 200) + '...');
+                    
                     if (text.trim()) {
                         try {
                             const data = JSON.parse(text);
                             equipmentData = Array.isArray(data) ? data : [];
+                            
+                            updateDebugInfo('読み込み成功', equipmentData.length, url);
                             console.log('装備データ読み込み完了:', equipmentData.length, '件');
+                            console.log('データサンプル:', equipmentData.slice(0, 2));
+                            
+                            loadSuccess = true;
+                            break;
                         } catch (parseError) {
                             console.error('JSON解析エラー:', parseError);
-                            equipmentData = [];
+                            lastError = parseError;
                         }
                     } else {
-                        console.log('空のファイルです。新しいデータで開始します。');
+                        console.log('空のファイルです');
                         equipmentData = [];
+                        updateDebugInfo('空のファイル', 0, url);
+                        loadSuccess = true;
+                        break;
                     }
+                } catch (e) {
+                    console.error(`URL ${url} で読み込み失敗:`, e);
+                    lastError = e;
                 }
-            } catch (e) {
-                console.error('装備データの読み込みに失敗しました:', e);
-                equipmentData = [];
-            } finally {
-                setupEventListeners();
-                initializeFilters(); // フィルターを初期化
-                showCategoryView();
             }
+
+            if (!loadSuccess) {
+                console.error('すべてのURLで読み込みに失敗しました:', lastError);
+                equipmentData = [];
+                updateDebugInfo('読み込み失敗', 0, 'すべてのURLで失敗');
+            }
+
+            setupEventListeners();
+            initializeFilters();
+            showCategoryView();
         }
     </script>
 </body>
