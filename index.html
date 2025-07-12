@@ -61,6 +61,18 @@
             padding: 20px;
             margin-bottom: 30px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out; /* Add transition */
+            overflow: hidden; /* Hide overflow when collapsed */
+        }
+
+        /* フィルター隠すための追加スタイル */
+        .filter-container.hidden {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+            margin-bottom: 0;
+            pointer-events: none; /* Disable interactions when hidden */
         }
 
         .filter-section {
@@ -309,154 +321,9 @@
             font-weight: 500;
         }
 
-        .add-button {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: #00acc1;
-            border: none;
-            border-radius: 50%;
-            color: white;
-            font-size: 2em;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-        }
-
-        .add-button:hover {
-            background: #006064;
-            transform: scale(1.1);
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            overflow: auto;
-        }
-
-        .modal-content {
-            background-color: white;
-            margin: 5% auto;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-            position: relative;
-        }
-
-        .modal-title {
-            font-size: 1.5em;
-            color: #006064;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .modal-body {
-            margin-bottom: 20px;
-            text-align: center;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #006064;
-        }
-
-        .form-input, .form-select, .form-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1em;
-            outline: none;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-input:focus, .form-select:focus, .form-textarea:focus {
-            border-color: #4dd0e1;
-        }
-
-        .form-input.duplicate {
-            border-color: #f44336;
-            background-color: #ffebee;
-        }
-
-        .form-textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
-        }
-
-        .button-group.justify-center {
-            justify-content: center;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: #00acc1;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #006064;
-        }
-
-        .btn-primary:disabled {
-            background: #bdbdbd;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background: #e0e0e0;
-            color: #333;
-        }
-
-        .btn-secondary:hover {
-            background: #bdbdbd;
-        }
-
-        .close {
-            position: absolute;
-            right: 20px;
-            top: 20px;
-            font-size: 28px;
-            font-weight: bold;
-            color: #aaa;
-            cursor: pointer;
-        }
-
-        .close:hover {
-            color: #006064;
+        /* 編集/削除ボタンは削除のため不要だが、念のためスタイルを維持 */
+        .edit-buttons-container {
+            display: none; /* 閲覧機能のみのため非表示 */
         }
 
         .back-button {
@@ -475,97 +342,11 @@
             background: #00acc1;
         }
 
-        .tag-input-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            align-items: center;
-            padding: 8px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            min-height: 50px;
-        }
-
-        .tag-input {
-            border: none;
-            outline: none;
-            flex: 1;
-            min-width: 100px;
-            padding: 4px;
-        }
-
-        .tag-item {
-            background: #4dd0e1;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.9em;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .tag-remove {
-            cursor: pointer;
-            font-weight: bold;
-        }
-
         .no-results {
             text-align: center;
             color: #666;
             font-size: 1.1em;
             margin-top: 40px;
-        }
-
-        .edit-buttons-container {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .edit-button, .delete-button {
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.2s ease;
-        }
-
-        .edit-button {
-            background-color: #00acc1;
-            color: white;
-            border: none;
-        }
-
-        .edit-button:hover {
-            background-color: #006064;
-        }
-
-        .delete-button {
-            background-color: #f44336;
-            color: white;
-            border: none;
-        }
-
-        .delete-button:hover {
-            background-color: #d32f2f;
-        }
-
-        .text-sm {
-            font-size: 0.875rem;
-        }
-
-        .text-gray-500 {
-            color: #6b7280;
-        }
-
-        .mt-1 {
-            margin-top: 0.25rem;
-        }
-
-        .hidden {
-            display: none;
         }
 
         .category-header {
@@ -578,77 +359,10 @@
             font-size: 1.2em;
             font-weight: 600;
         }
-
-        /* 重複警告スタイル */
-        .duplicate-warning {
-            background: #ffebee;
-            border: 2px solid #f44336;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 10px;
-            margin-bottom: 15px;
-        }
-
-        .duplicate-warning-title {
-            color: #f44336;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 1.1em;
-        }
-
-        .duplicate-equipment-list {
-            max-height: 150px;
-            overflow-y: auto;
-        }
-
-        .duplicate-equipment-item {
-            display: flex;
-            align-items: center;
-            padding: 8px;
-            margin-bottom: 8px;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #ffcdd2;
-        }
-
-        .duplicate-equipment-image {
-            width: 40px;
-            height: 40px;
-            border-radius: 6px;
-            object-fit: cover;
-            margin-right: 10px;
-        }
-
-        .duplicate-equipment-info {
-            flex: 1;
-        }
-
-        .duplicate-equipment-name {
-            font-weight: 600;
-            color: #d32f2f;
-        }
-
-        .duplicate-equipment-category {
-            font-size: 0.9em;
-            color: #666;
-        }
     </style>
 </head>
 <body>
     <div class="container">
-        <div style="text-align:right; padding:10px;">
-            <div id="saveStatus" style="font-size: 0.9em; color: #666; margin-bottom: 10px;">
-                <!-- 保存状況が表示される -->
-            </div>
-            <button onclick="testGitHubConnection()" class="btn btn-secondary" style="margin-right: 10px;">接続テスト</button>
-            <button onclick="exportDataAsJSON()" class="btn" style="background-color: #4caf50; color: white; margin-right: 10px;">JSONダウンロード</button>
-            <button onclick="importDataFromJSON()" class="btn" style="background-color: #2196f3; color: white; margin-right: 10px;">JSONインポート</button>
-            <button onclick="saveToGitHub()" class="btn btn-primary" style="margin-right: 10px;">GitHubに保存</button>
-        </div>
-        
-        <!-- ファイルインポート用（非表示） -->
-        <input type="file" id="jsonImportFile" accept=".json" style="display: none;" onchange="handleJSONImport(event)">`
-        
         <div class="header">
             <h1 class="title">電波人間 装備データベース</h1>
             <input type="text" class="search-box" id="searchBox" placeholder="装備名やタグで検索...">
@@ -657,26 +371,22 @@
             </div>
         </div>
 
-        <!-- フィルター機能 -->
         <div class="filter-container" id="filterContainer">
             <div class="filter-section">
                 <label class="filter-label">☆数で絞り込み</label>
                 <div class="star-filter-container" id="starFilterContainer">
-                    <!-- JavaScriptで動的生成 -->
-                </div>
+                    </div>
             </div>
 
             <div class="filter-section">
                 <label class="filter-label">タグで絞り込み (複数選択可能)</label>
                 <div class="tag-filter-container" id="tagFilterContainer">
-                    <!-- JavaScriptで動的生成 -->
-                </div>
+                    </div>
             </div>
 
             <div class="filter-actions">
                 <div class="filter-status" id="filterStatus">
-                    <!-- フィルター状況を表示 -->
-                </div>
+                    </div>
                 <div>
                     <button class="filter-reset" onclick="resetFilters()">フィルターをリセット</button>
                 </div>
@@ -715,594 +425,30 @@
             <div id="categoryHeader" class="category-header"></div>
             <div id="equipmentList"></div>
             <div class="edit-buttons-container">
-                <!-- 編集・削除ボタンはJSで動的に追加される -->
-            </div>
+                </div>
         </div>
 
-        <button class="add-button" onclick="openModal()">+</button>
-    </div>
-
-    <!-- 装備追加/編集モーダル -->
-    <div id="addModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle" class="modal-title">装備を追加</h2>
-            <form id="equipmentForm">
-                <div class="form-group">
-                    <label class="form-label">装備名</label>
-                    <input type="text" id="equipmentName" class="form-input" required>
-                    <!-- 重複警告エリア -->
-                    <div id="duplicateWarning" class="duplicate-warning hidden">
-                        <div class="duplicate-warning-title">⚠️ 同じ名前の装備が既に存在します</div>
-                        <div class="duplicate-equipment-list" id="duplicateEquipmentList">
-                            <!-- 重複装備の一覧がここに表示される -->
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">カテゴリ</label>
-                    <select id="equipmentCategory" class="form-select" required>
-                        <option value="">選択してください</option>
-                        <option value="ふく">ふく</option>
-                        <option value="かお">かお</option>
-                        <option value="くび">くび</option>
-                        <option value="うで">うで</option>
-                        <option value="せなか">せなか</option>
-                        <option value="あし">あし</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">星レベル</label>
-                    <select id="equipmentStars" class="form-select" required>
-                        <option value="">選択してください</option>
-                        <option value="1">☆1</option>
-                        <option value="2">☆2</option>
-                        <option value="3">☆3</option>
-                        <option value="4">☆4</option>
-                        <option value="5">☆5</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">画像ファイル</label>
-                    <input type="file" id="equipmentImageFile" class="form-input" accept="image/*">
-                    <p class="text-sm text-gray-500 mt-1">※編集時は新しい画像を選択しない場合、既存の画像が維持されます。</p>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">効果</label>
-                    <textarea id="equipmentEffect" class="form-textarea" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">タグ (Enterキーで追加)</label>
-                    <div class="tag-input-container" id="tagContainer">
-                        <input type="text" id="tagInput" class="tag-input" placeholder="タグを入力してEnterキーを押してください">
-                    </div>
-                </div>
-                <div class="button-group">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">キャンセル</button>
-                    <button type="submit" class="btn btn-primary" id="submitButton">保存</button>
-                </div>
-            </form>
         </div>
-    </div>
-
-    <!-- Custom Message Modal -->
-    <div id="messageModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeMessageModal()">&times;</span>
-            <h2 id="messageModalTitle" class="modal-title"></h2>
-            <p id="messageModalBody" class="modal-body"></p>
-            <div class="button-group justify-center">
-                <button class="btn btn-primary" onclick="closeMessageModal()">OK</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Custom Confirmation Modal -->
-    <div id="confirmModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeConfirmModal(false)">&times;</span>
-            <h2 id="confirmModalTitle" class="modal-title"></h2>
-            <p id="confirmModalBody" class="modal-body"></p>
-            <div class="button-group justify-center">
-                <button class="btn btn-secondary" onclick="closeConfirmModal(false)">キャンセル</button>
-                <button class="btn btn-primary" onclick="closeConfirmModal(true)">OK</button>
-            </div>
-        </div>
-    </div>
 
     <script>
         // データストレージ
         let equipmentData = [];
         let currentCategory = '';
-        let currentTags = [];
-
+        
         // フィルター関連の変数
         let selectedStars = new Set();
         let selectedFilterTags = new Set();
         let isFilterVisible = true;
 
-        // モーダルの状態管理
-        let isEditing = false;
-        let editingEquipmentId = null;
+        // モーダル関連の関数（メッセージ、確認、追加/編集機能）をすべて削除
 
-        // カスタムモーダルのコールバック用
-        let confirmCallback = null;
-
-        // 詳細診断関数
-        window.testCORSAndFetch = async function() {
-            showMessageModal('詳細診断中...', 'ネットワークとCORSの診断を実行しています...');
-            
-            let results = [];
-            
-            // 1. 基本的なfetch テスト
-            try {
-                results.push('🔍 基本診断を開始...');
-                
-                // Google APIへのテスト（CORS許可されている）
-                const googleTest = await fetch('https://www.googleapis.com/books/v1/volumes?q=test', {
-                    method: 'GET'
-                });
-                results.push(`✅ Google API接続: ${googleTest.status} ${googleTest.statusText}`);
-            } catch (e) {
-                results.push(`❌ Google API接続失敗: ${e.message}`);
-            }
-
-            // 2. GitHub APIへの基本接続テスト（認証なし）
-            try {
-                const basicGitHubTest = await fetch('https://api.github.com/zen');
-                const text = await basicGitHubTest.text();
-                results.push(`✅ GitHub API基本接続: ${text.substring(0, 50)}...`);
-            } catch (e) {
-                results.push(`❌ GitHub API基本接続失敗: ${e.message}`);
-            }
-
-            // 3. ブラウザ情報
-            results.push(`📱 ブラウザ: ${navigator.userAgent.split(' ').slice(-2).join(' ')}`);
-            results.push(`🌐 プロトコル: ${window.location.protocol}`);
-            results.push(`🔒 セキュア接続: ${window.isSecureContext ? 'はい' : 'いいえ'}`);
-
-            // 4. GitHub API（認証あり）のテスト
-            const token = '${{ secrets.MISERARENAIYO }}';
-            
-            try {
-                results.push('🔐 GitHub認証テストを開始...');
-                
-                // まずはシンプルなリクエスト
-                const authTest = await fetch('https://api.github.com/user', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'User-Agent': 'Equipment-Database-App'
-                    }
-                });
-                
-                if (authTest.ok) {
-                    const userData = await authTest.json();
-                    results.push(`✅ GitHub認証成功: ${userData.login}`);
-                } else {
-                    const errorText = await authTest.text();
-                    results.push(`❌ GitHub認証失敗 (${authTest.status}): ${errorText}`);
-                }
-            } catch (e) {
-                results.push(`❌ GitHub認証エラー: ${e.message}`);
-                results.push(`🔍 エラーの種類: ${e.name}`);
-                results.push(`🔍 エラーの詳細: ${e.stack ? e.stack.split('\n')[0] : 'スタック情報なし'}`);
-            }
-
-            // 5. CORS代替案のテスト
-            try {
-                results.push('🔄 代替アクセス方法をテスト...');
-                
-                // GitHub Raw ファイルアクセステスト
-                const rawTest = await fetch('https://raw.githubusercontent.com/TaKaNaNDF/NDFsoubimatome/main/README.md');
-                if (rawTest.ok) {
-                    results.push('✅ GitHub Raw ファイルアクセス成功');
-                } else {
-                    results.push(`❌ GitHub Raw ファイルアクセス失敗: ${rawTest.status}`);
-                }
-            } catch (e) {
-                results.push(`❌ GitHub Raw ファイルアクセスエラー: ${e.message}`);
-            }
-
-            // 結果を表示
-            const resultText = results.join('\n');
-            console.log('詳細診断結果:', resultText);
-            
-            closeMessageModal();
-            showMessageModal('詳細診断結果', resultText);
-        };
-
-        // JSONエクスポート機能
-        window.exportDataAsJSON = function() {
-            try {
-                const dataStr = JSON.stringify(equipmentData, null, 2);
-                const blob = new Blob([dataStr], {type: 'application/json'});
-                const url = URL.createObjectURL(blob);
-                
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `soubihyou_${new Date().toISOString().split('T')[0]}.json`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                URL.revokeObjectURL(url);
-                showMessageModal('エクスポート完了', 'データがJSONファイルとしてダウンロードされました！');
-            } catch (e) {
-                showMessageModal('エクスポート失敗', `エクスポートに失敗しました: ${e.message}`);
-            }
-        };
-
-        // JSONインポート機能
-        window.importDataFromJSON = function() {
-            document.getElementById('jsonImportFile').click();
-        };
-
-        // JSONファイル処理
-        window.handleJSONImport = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    
-                    if (!Array.isArray(importedData)) {
-                        throw new Error('無効なデータ形式です。配列である必要があります。');
-                    }
-
-                    // データ検証
-                    const validData = importedData.filter(item => {
-                        return item && 
-                               typeof item.name === 'string' && 
-                               typeof item.category === 'string' && 
-                               typeof item.stars === 'number' &&
-                               typeof item.effect === 'string' &&
-                               Array.isArray(item.tags);
-                    });
-
-                    if (validData.length !== importedData.length) {
-                        showMessageModal('警告', `${importedData.length - validData.length}個の無効なデータがスキップされました。\n有効なデータ: ${validData.length}個`);
-                    }
-
-                    equipmentData = validData;
-                    
-                    // IDを再割り当て
-                    equipmentData.forEach((item, index) => {
-                        item.id = index + 1;
-                    });
-
-                    // 表示を更新
-                    updateTagFilters();
-                    if (currentCategory) {
-                        showEquipmentList(currentCategory);
-                    } else {
-                        showCategoryView();
-                    }
-
-                    // ローカルストレージに保存
-                    saveToLocalStorage();
-
-                    showMessageModal('インポート完了', `${validData.length}個の装備データをインポートしました！`);
-                    
-                } catch (error) {
-                    showMessageModal('インポート失敗', `JSONファイルの読み込みに失敗しました: ${error.message}`);
-                }
-            };
-            
-            reader.readAsText(file);
-            event.target.value = ''; // ファイル選択をリセット
-        };
-
-        // ローカルストレージに保存
-        function saveToLocalStorage() {
-            try {
-                const dataStr = JSON.stringify(equipmentData);
-                localStorage.setItem('equipmentDatabase', dataStr);
-                localStorage.setItem('equipmentDatabase_lastSaved', new Date().toISOString());
-                console.log('ローカルストレージに保存しました');
-            } catch (e) {
-                console.warn('ローカルストレージへの保存に失敗:', e);
-            }
-        }
-
-        // ローカルストレージから読み込み
-        function loadFromLocalStorage() {
-            try {
-                const savedData = localStorage.getItem('equipmentDatabase');
-                const lastSaved = localStorage.getItem('equipmentDatabase_lastSaved');
-                
-                if (savedData) {
-                    const data = JSON.parse(savedData);
-                    if (Array.isArray(data)) {
-                        equipmentData = data;
-                        console.log(`ローカルストレージからデータを読み込みました (${data.length}件)`);
-                        if (lastSaved) {
-                            console.log(`最終保存日時: ${new Date(lastSaved).toLocaleString()}`);
-                        }
-                        return true;
-                    }
-                }
-            } catch (e) {
-                console.warn('ローカルストレージからの読み込みに失敗:', e);
-            }
-            return false;
-        }
-
-        // 保存状況表示の更新
-        function updateSaveStatus() {
-            const statusElement = document.getElementById('saveStatus');
-            const lastSaved = localStorage.getItem('equipmentDatabase_lastSaved');
-            const dataCount = equipmentData.length;
-            
-            if (lastSaved) {
-                const lastSavedDate = new Date(lastSaved);
-                const timeStr = lastSavedDate.toLocaleString();
-                statusElement.innerHTML = `💾 ${dataCount}件のデータがローカルに保存済み (${timeStr})`;
-            } else {
-                statusElement.innerHTML = `📊 ${dataCount}件のデータ (未保存)`;
-            }
-        }
-
-        // ローカルストレージに保存（更新版）
-        function saveToLocalStorage() {
-            try {
-                const dataStr = JSON.stringify(equipmentData);
-                localStorage.setItem('equipmentDatabase', dataStr);
-                localStorage.setItem('equipmentDatabase_lastSaved', new Date().toISOString());
-                console.log('ローカルストレージに保存しました');
-                updateSaveStatus(); // 保存状況表示を更新
-            } catch (e) {
-                console.warn('ローカルストレージへの保存に失敗:', e);
-            }
-        }
-
-        // 自動保存機能を追加（更新版）
-        function autoSave() {
-            saveToLocalStorage();
-        }
-        async function testGitHubConnection() {
-            showMessageModal('接続テスト中...', 'GitHubへの接続をテストしています...');
-            
-            const token = '${{ secrets.MISERARENAIYO }}';
-            const user = 'TaKaNaNDF';
-            const repo = 'NDFsoubimatome';
-            
-            let results = [];
-            
-            try {
-                // 1. トークンの検証
-                console.log('1. トークン検証中...');
-                const userRes = await fetch('https://api.github.com/user', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Equipment-Database-App'
-                    }
-                });
-                
-                if (userRes.ok) {
-                    const userData = await userRes.json();
-                    results.push(`✅ トークン有効: ${userData.login}`);
-                } else {
-                    const errorText = await userRes.text();
-                    results.push(`❌ トークン検証失敗 (${userRes.status}): ${errorText}`);
-                }
-
-                // 2. リポジトリアクセス確認
-                console.log('2. リポジトリアクセス確認中...');
-                const repoRes = await fetch(`https://api.github.com/repos/${user}/${repo}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Equipment-Database-App'
-                    }
-                });
-                
-                if (repoRes.ok) {
-                    const repoData = await repoRes.json();
-                    results.push(`✅ リポジトリアクセス成功: ${repoData.full_name}`);
-                    results.push(`📊 権限: ${repoData.permissions ? JSON.stringify(repoData.permissions) : '不明'}`);
-                } else {
-                    const errorText = await repoRes.text();
-                    results.push(`❌ リポジトリアクセス失敗 (${repoRes.status}): ${errorText}`);
-                }
-
-                // 3. ファイルアクセス確認
-                console.log('3. ファイルアクセス確認中...');
-                const fileRes = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/soubihyou.json`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Equipment-Database-App'
-                    }
-                });
-                
-                if (fileRes.ok) {
-                    results.push('✅ ファイルアクセス成功');
-                } else if (fileRes.status === 404) {
-                    results.push('⚠️ ファイルが存在しません（新規作成されます）');
-                } else {
-                    const errorText = await fileRes.text();
-                    results.push(`❌ ファイルアクセス失敗 (${fileRes.status}): ${errorText}`);
-                }
-
-            } catch (e) {
-                results.push(`❌ 接続エラー: ${e.message}`);
-            }
-            
-            const resultText = results.join('\n');
-            console.log('接続テスト結果:', resultText);
-            
-            closeMessageModal();
-            showMessageModal('GitHub接続テスト結果', resultText);
-        }
+        // 閲覧機能とフィルター機能に関連する関数のみを維持
 
         // 初期化
         document.addEventListener('DOMContentLoaded', async function() {
-            // GitHub接続テスト
-        async function testGitHubConnection() {
-            showMessageModal('接続テスト中...', 'GitHubへの接続をテストしています...');
-            
-            const token = '${{ secrets.MISERARENAIYO }}';
-            const user = 'TaKaNaNDF';
-            const repo = 'NDFsoubimatome';
-            
-            let results = [];
-            
-            try {
-                // 1. トークンの検証
-                console.log('1. トークン検証中...');
-                const userRes = await fetch('https://api.github.com/user', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Equipment-Database-App'
-                    }
-                });
-                
-                if (userRes.ok) {
-                    const userData = await userRes.json();
-                    results.push(`✅ トークン有効: ${userData.login}`);
-                } else {
-                    const errorText = await userRes.text();
-                    results.push(`❌ トークン検証失敗 (${userRes.status}): ${errorText}`);
-                }
-
-                // 2. リポジトリアクセス確認
-                console.log('2. リポジトリアクセス確認中...');
-                const repoRes = await fetch(`https://api.github.com/repos/${user}/${repo}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Equipment-Database-App'
-                    }
-                });
-                
-                if (repoRes.ok) {
-                    const repoData = await repoRes.json();
-                    results.push(`✅ リポジトリアクセス成功: ${repoData.full_name}`);
-                    results.push(`📊 権限: ${repoData.permissions ? JSON.stringify(repoData.permissions) : '不明'}`);
-                } else {
-                    const errorText = await repoRes.text();
-                    results.push(`❌ リポジトリアクセス失敗 (${repoRes.status}): ${errorText}`);
-                }
-
-                // 3. ファイルアクセス確認
-                console.log('3. ファイルアクセス確認中...');
-                const fileRes = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/soubihyou.json`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Equipment-Database-App'
-                    }
-                });
-                
-                if (fileRes.ok) {
-                    results.push('✅ ファイルアクセス成功');
-                } else if (fileRes.status === 404) {
-                    results.push('⚠️ ファイルが存在しません（新規作成されます）');
-                } else {
-                    const errorText = await fileRes.text();
-                    results.push(`❌ ファイルアクセス失敗 (${fileRes.status}): ${errorText}`);
-                }
-
-            } catch (e) {
-                results.push(`❌ 接続エラー: ${e.message}`);
-            }
-            
-            const resultText = results.join('\n');
-            console.log('接続テスト結果:', resultText);
-            
-            closeMessageModal();
-            showMessageModal('GitHub接続テスト結果', resultText);
-        }
-
-        // トークンの検証を実行
-            const tokenValid = await verifyGitHubToken();
-            if (!tokenValid) {
-                console.warn('GitHubトークンの検証に失敗しました。保存機能が利用できません。');
-            }
-            
+            // ローカルストレージからの読み込み機能は維持しない（GitHubからの読み込みに依存）
             loadDataFromJSON();
         });
-
-        // 装備名重複チェック関数
-        function checkDuplicateEquipmentName(name, excludeId = null) {
-            const trimmedName = name.trim();
-            if (!trimmedName) return [];
-            
-            return equipmentData.filter(item => {
-                return item.name.trim() === trimmedName && item.id !== excludeId;
-            });
-        }
-
-        // 重複警告の表示/非表示
-        function toggleDuplicateWarning(duplicates) {
-            const warningElement = document.getElementById('duplicateWarning');
-            const nameInput = document.getElementById('equipmentName');
-            const duplicateList = document.getElementById('duplicateEquipmentList');
-            const submitButton = document.getElementById('submitButton');
-            
-            if (duplicates.length > 0) {
-                // 重複装備の一覧を表示
-                duplicateList.innerHTML = duplicates.map(item => `
-                    <div class="duplicate-equipment-item">
-                        <img src="${item.image}" alt="${item.name}" class="duplicate-equipment-image">
-                        <div class="duplicate-equipment-info">
-                            <div class="duplicate-equipment-name">${item.name}</div>
-                            <div class="duplicate-equipment-category">${item.category} (☆${item.stars})</div>
-                        </div>
-                    </div>
-                `).join('');
-                
-                warningElement.classList.remove('hidden');
-                nameInput.classList.add('duplicate');
-                submitButton.disabled = true;
-            } else {
-                warningElement.classList.add('hidden');
-                nameInput.classList.remove('duplicate');
-                submitButton.disabled = false;
-            }
-        }
-
-        // 装備名入力時のイベントハンドラ
-        function handleEquipmentNameInput() {
-            const nameInput = document.getElementById('equipmentName');
-            const name = nameInput.value;
-            const duplicates = checkDuplicateEquipmentName(name, editingEquipmentId);
-            toggleDuplicateWarning(duplicates);
-        }
-
-        // メッセージモーダル表示
-        function showMessageModal(title, message) {
-            document.getElementById('messageModalTitle').innerText = title;
-            document.getElementById('messageModalBody').innerText = message;
-            document.getElementById('messageModal').style.display = 'block';
-        }
-
-        // メッセージモーダル非表示
-        function closeMessageModal() {
-            document.getElementById('messageModal').style.display = 'none';
-        }
-
-        // 確認モーダル表示
-        function showConfirmModal(title, message, callback) {
-            document.getElementById('confirmModalTitle').innerText = title;
-            document.getElementById('confirmModalBody').innerText = message;
-            confirmCallback = callback;
-            document.getElementById('confirmModal').style.display = 'block';
-        }
-
-        // 確認モーダル非表示
-        function closeConfirmModal(result) {
-            document.getElementById('confirmModal').style.display = 'none';
-            if (confirmCallback) {
-                confirmCallback(result);
-                confirmCallback = null;
-            }
-        }
 
         function setupEventListeners() {
             // カテゴリクリック
@@ -1327,29 +473,6 @@
                     }
                 }
             });
-
-            // 装備名入力時の重複チェック
-            document.getElementById('equipmentName').addEventListener('input', handleEquipmentNameInput);
-
-            // タグ入力
-            const tagInput = document.getElementById('tagInput');
-            if (tagInput) {
-                tagInput.removeEventListener('keypress', handleTagInputKeypress);
-                tagInput.addEventListener('keypress', handleTagInputKeypress);
-            }
-
-            // フォーム送信
-            document.getElementById('equipmentForm').removeEventListener('submit', handleEquipmentSubmit);
-            document.getElementById('equipmentForm').addEventListener('submit', handleEquipmentSubmit);
-        }
-
-        // タグ入力のイベントハンドラ
-        function handleTagInputKeypress(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                addTag(this.value.trim());
-                this.value = '';
-            }
         }
 
         // フィルター関連の関数
@@ -1514,22 +637,8 @@
 
         function applyFilters() {
             const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-            if (searchTerm || selectedStars.size > 0 || selectedFilterTags.size > 0) {
-                showFilteredResults();
-            } else {
-                // フィルターがない場合の処理を改善
-                if (currentCategory) {
-                    showEquipmentList(currentCategory);
-                } else {
-                    showCategoryView();
-                }
-            }
-        }
-
-        function showFilteredResults() {
-            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
             
-            // 検索対象を現在のカテゴリに制限（修正のメイン部分）
+            // 検索対象を現在のカテゴリに制限
             let baseEquipment = currentCategory 
                 ? equipmentData.filter(item => item.category === currentCategory)
                 : equipmentData;
@@ -1603,6 +712,7 @@
                 return;
             }
 
+            // IDは残すが、編集/削除ボタンは表示しないようにする
             container.innerHTML = equipment.map(item => `
                 <div class="equipment-item">
                     <img src="${item.image}" alt="${item.name}" class="equipment-image">
@@ -1618,312 +728,8 @@
                             ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
                         </div>
                     </div>
-                    <div class="edit-buttons-container">
-                        <button class="edit-button" onclick="editEquipment(${item.id})">編集</button>
-                        <button class="delete-button" onclick="deleteEquipment(${item.id})">削除</button>
-                    </div>
                 </div>
             `).join('');
-        }
-
-        // モーダルを開く
-        function openModal(mode = 'add', equipment = null) {
-            document.getElementById('addModal').style.display = 'block';
-            document.getElementById('equipmentForm').reset();
-            currentTags = [];
-            renderTags();
-
-            document.getElementById('equipmentImageFile').value = '';
-
-            // 重複警告をリセット
-            document.getElementById('duplicateWarning').classList.add('hidden');
-            document.getElementById('equipmentName').classList.remove('duplicate');
-            document.getElementById('submitButton').disabled = false;
-
-            if (mode === 'edit' && equipment) {
-                isEditing = true;
-                editingEquipmentId = equipment.id;
-                document.getElementById('modalTitle').innerText = '装備を編集';
-                document.getElementById('equipmentName').value = equipment.name;
-                document.getElementById('equipmentCategory').value = equipment.category;
-                document.getElementById('equipmentStars').value = equipment.stars;
-                document.getElementById('equipmentEffect').value = equipment.effect;
-                currentTags = [...equipment.tags];
-                renderTags();
-            } else {
-                isEditing = false;
-                editingEquipmentId = null;
-                document.getElementById('modalTitle').innerText = '装備を追加';
-                // 現在のカテゴリが選択されている場合はそれをデフォルトに設定
-                if (currentCategory) {
-                    document.getElementById('equipmentCategory').value = currentCategory;
-                }
-            }
-        }
-
-        // モーダルを閉じる
-        function closeModal() {
-            document.getElementById('addModal').style.display = 'none';
-            document.getElementById('equipmentForm').reset();
-            currentTags = [];
-            renderTags();
-            isEditing = false;
-            editingEquipmentId = null;
-            
-            // 重複警告をリセット
-            document.getElementById('duplicateWarning').classList.add('hidden');
-            document.getElementById('equipmentName').classList.remove('duplicate');
-            document.getElementById('submitButton').disabled = false;
-        }
-
-        function addTag(tagText) {
-            if (tagText && !currentTags.includes(tagText)) {
-                currentTags.push(tagText);
-                renderTags();
-            }
-        }
-
-        function removeTag(tagText) {
-            currentTags = currentTags.filter(tag => tag !== tagText);
-            renderTags();
-        }
-
-        function renderTags() {
-            const container = document.getElementById('tagContainer');
-            const tagInputHtml = '<input type="text" id="tagInput" class="tag-input" placeholder="タグを入力してEnterキーを押してください">';
-            container.innerHTML = currentTags.map(tag => `
-                <span class="tag-item">
-                    ${tag}
-                    <span class="tag-remove" onclick="removeTag('${tag}')">&times;</span>
-                </span>
-            `).join('') + tagInputHtml;
-            
-            const newTagInput = document.getElementById('tagInput');
-            if (newTagInput) {
-                newTagInput.removeEventListener('keypress', handleTagInputKeypress);
-                newTagInput.addEventListener('keypress', handleTagInputKeypress);
-            }
-        }
-
-        // フォーム送信のメインハンドラ
-        async function handleEquipmentSubmit(e) {
-            e.preventDefault();
-            
-            const name = document.getElementById('equipmentName').value.trim();
-            const category = document.getElementById('equipmentCategory').value;
-            const stars = parseInt(document.getElementById('equipmentStars').value);
-            const effect = document.getElementById('equipmentEffect').value;
-            const fileInput = document.getElementById('equipmentImageFile');
-
-            // 重複チェック（最終確認）
-            const duplicates = checkDuplicateEquipmentName(name, editingEquipmentId);
-            if (duplicates.length > 0) {
-                showMessageModal('エラー', '同じ名前の装備が既に存在するため、保存できません。');
-                return;
-            }
-
-            let image = null;
-
-            if (fileInput.files.length > 0) {
-                image = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = function() {
-                        resolve(reader.result);
-                    };
-                    reader.readAsDataURL(fileInput.files[0]);
-                });
-            } else if (isEditing && editingEquipmentId !== null) {
-                const existingEquipment = equipmentData.find(e => e.id === editingEquipmentId);
-                if (existingEquipment) {
-                    image = existingEquipment.image;
-                }
-            } else {
-                showMessageModal('エラー', '画像ファイルを選択してください。');
-                return;
-            }
-
-            if (isEditing) {
-                const index = equipmentData.findIndex(e => e.id === editingEquipmentId);
-                if (index !== -1) {
-                    equipmentData[index] = {
-                        id: editingEquipmentId,
-                        name, category, stars, image, effect,
-                        tags: [...currentTags]
-                    };
-                    showMessageModal('更新完了', '装備が更新されました！');
-                }
-            } else {
-                const newId = equipmentData.length > 0 ? Math.max(...equipmentData.map(e => e.id)) + 1 : 1;
-                const newEquipment = {
-                    id: newId,
-                    name, category, stars, image, effect,
-                    tags: [...currentTags]
-                };
-                equipmentData.push(newEquipment);
-                showMessageModal('追加完了', '装備が追加されました！');
-            }
-
-            // 自動保存
-            autoSave();
-
-            // フィルターを更新
-            updateTagFilters();
-            
-            closeModal();
-            // 現在のカテゴリで表示を更新
-            if (currentCategory === category) {
-                showEquipmentList(category);
-            } else {
-                showEquipmentList(category);
-            }
-        }
-
-        // モーダル外クリックで閉じる
-        window.onclick = function(event) {
-            const addModal = document.getElementById('addModal');
-            const messageModal = document.getElementById('messageModal');
-            const confirmModal = document.getElementById('confirmModal');
-            if (event.target === addModal) {
-                closeModal();
-            } else if (event.target === messageModal) {
-                closeMessageModal();
-            } else if (event.target === confirmModal) {
-                // 確認モーダルは外クリックでは閉じない
-            }
-        }
-
-        // 装備編集
-        function editEquipment(id) {
-            const item = equipmentData.find(e => e.id === id);
-            if (!item) return;
-            openModal('edit', item);
-        }
-
-        // 装備削除
-        function deleteEquipment(id) {
-            showConfirmModal('削除の確認', 'この装備を削除しますか？', (result) => {
-                if (result) {
-                    equipmentData = equipmentData.filter(e => e.id !== id);
-                    
-                    // 自動保存
-                    autoSave();
-                    
-                    updateTagFilters(); // タグフィルターを更新
-                    
-                    // 現在の表示を更新
-                    if (currentCategory) {
-                        showEquipmentList(currentCategory);
-                    } else {
-                        showCategoryView();
-                    }
-                    showMessageModal('削除完了', '装備が削除されました！');
-                }
-            });
-        }
-
-        // トークンの検証
-        async function verifyGitHubToken() {
-            const token = '${{ secrets.MISERARENAIYO }}';
-            
-            try {
-                const response = await fetch('https://api.github.com/user', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Equipment-Database-App'
-                    }
-                });
-                
-                if (response.ok) {
-                    const user = await response.json();
-                    console.log('トークン検証成功:', user.login);
-                    return true;
-                } else {
-                    console.error('トークン検証失敗:', response.status, response.statusText);
-                    return false;
-                }
-            } catch (e) {
-                console.error('トークン検証エラー:', e);
-                return false;
-            }
-        }
-
-        // GitHubに保存
-        async function saveToGitHub() {
-            try {
-                // まずトークンを検証
-                const tokenValid = await verifyGitHubToken();
-                if (!tokenValid) {
-                    showMessageModal('認証エラー', 'GitHubトークンが無効です。トークンの権限と有効期限を確認してください。');
-                    return;
-                }
-
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(equipmentData, null, 2))));
-
-                const repo = 'NDFsoubimatome';
-                const path = 'soubihyou.json';
-                const token = '${{ secrets.MISERARENAIYO }}';
-                const user = 'TaKaNaNDF';
-
-                // 既存ファイルのSHAを取得
-                const getRes = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
-                    headers: { 
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Equipment-Database-App'
-                    }
-                });
-
-                let sha = null;
-                if (getRes.ok) {
-                    const data = await getRes.json();
-                    sha = data.sha;
-                } else if (getRes.status === 404) {
-                    console.log('ファイルが存在しないため新規作成します');
-                } else {
-                    const errorText = await getRes.text();
-                    console.error('ファイル取得エラー:', getRes.status, errorText);
-                    throw new Error(`ファイル情報取得エラー (${getRes.status}): ${errorText}`);
-                }
-
-                // ファイルを更新または作成
-                const putData = {
-                    message: `Update equipment data - ${new Date().toISOString()}`,
-                    content: content
-                };
-                
-                if (sha) {
-                    putData.sha = sha;
-                }
-
-                const res = await fetch(`https://api.github.com/repos/${user}/${repo}/contents/${path}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/vnd.github.v3+json',
-                        'User-Agent': 'Equipment-Database-App'
-                    },
-                    body: JSON.stringify(putData)
-                });
-
-                if (res.ok) {
-                    const responseData = await res.json();
-                    console.log('GitHub保存成功:', responseData);
-                    
-                    // GitHubに保存成功したらローカルストレージも更新
-                    saveToLocalStorage();
-                    
-                    showMessageModal('保存完了', 'GitHubに正常に保存されました！');
-                } else {
-                    const errorText = await res.text();
-                    console.error('GitHub保存エラー:', res.status, errorText);
-                    throw new Error(`保存エラー (${res.status}): ${errorText}`);
-                }
-            } catch (e) {
-                console.error('GitHub保存中にエラーが発生:', e);
-                showMessageModal('保存失敗', `GitHub保存中にエラーが発生しました: ${e.message}\n\nトークンの権限（repo）と有効期限を確認してください。`);
-            }
         }
 
         // JSONデータ読み込み
@@ -1943,7 +749,7 @@
                     } else {
                         console.error(`データ読み込み失敗: ${res.status} ${res.statusText}`);
                         equipmentData = [];
-                        showMessageModal('データ読み込みエラー', `データの読み込みに失敗しました (${res.status})。新しいデータで開始します。`);
+                        // 閲覧機能のみのため、エラーモーダル表示は省略
                     }
                 } else {
                     const text = await res.text();
@@ -1955,7 +761,6 @@
                         } catch (parseError) {
                             console.error('JSON解析エラー:', parseError);
                             equipmentData = [];
-                            showMessageModal('データ読み込みエラー', 'データファイルの形式が正しくありません。新しいデータで開始します。');
                         }
                     } else {
                         console.log('空のファイルです。新しいデータで開始します。');
@@ -1965,11 +770,9 @@
             } catch (e) {
                 console.error('装備データの読み込みに失敗しました:', e);
                 equipmentData = [];
-                showMessageModal('データ読み込みエラー', `装備データの読み込みに失敗しました: ${e.message}\n新しいデータで開始します。`);
             } finally {
                 setupEventListeners();
                 initializeFilters(); // フィルターを初期化
-                updateSaveStatus(); // 保存状況を表示
                 showCategoryView();
             }
         }
