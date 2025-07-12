@@ -5,33 +5,673 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>電波人間 装備データベース</title>
     <style>
-        /* --- 省略（あなたのスタイルそのまま） --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            color: #006064;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #4dd0e1;
+            border-radius: 25px;
+            font-size: 1.1em;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: #00acc1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* フィルター関連のスタイル */
+        .filter-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out, padding 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        .filter-container.hidden {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            opacity: 0;
+            margin-bottom: 0;
+            pointer-events: none;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+        }
+
+        .filter-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: #006064;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .star-filter-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .star-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f5f5f5;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .star-checkbox:hover {
+            background: #e0f7fa;
+            border-color: #4dd0e1;
+        }
+
+        .star-checkbox input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .star-checkbox.active {
+            background: #4dd0e1;
+            color: white;
+        }
+
+        .tag-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+
+        .tag-filter-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #f5f5f5;
+            padding: 6px 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            font-size: 0.9em;
+        }
+
+        .tag-filter-item:hover {
+            background: #e0f7fa;
+            border-color: #4dd0e1;
+        }
+
+        .tag-filter-item.active {
+            background: #4dd0e1;
+            color: white;
+        }
+
+        .tag-filter-item input[type="checkbox"] {
+            margin: 0;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .filter-toggle {
+            background: #00acc1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .filter-toggle:hover {
+            background: #006064;
+        }
+
+        .filter-reset {
+            background: #e0e0e0;
+            color: #333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .filter-reset:hover {
+            background: #bdbdbd;
+        }
+
+        .filter-status {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .category-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .category-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .category-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+            border-color: #4dd0e1;
+        }
+
+        .category-text {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #006064;
+        }
+
+        .category-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .equipment-list {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .equipment-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .equipment-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .equipment-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .equipment-info {
+            flex: 1;
+        }
+
+        .equipment-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .star-rating {
+            display: flex;
+            margin-right: 10px;
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 1.2em;
+            margin-right: 2px;
+        }
+
+        .equipment-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #006064;
+        }
+
+        .equipment-effect {
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .equipment-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tag {
+            background: #4dd0e1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .edit-buttons-container {
+            display: none;
+        }
+
+        .back-button {
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #4dd0e1;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #00acc1;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 40px;
+        }
+
+        .category-header {
+            background: #4dd0e1;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
-    <!-- --- 省略（あなたのHTMLそのまま） --- -->
+    <div class="container">
+        <div class="header">
+            <h1 class="title">電波人間 装備データベース</h1>
+            <input type="text" class="search-box" id="searchBox" placeholder="装備名やタグで検索...">
+            <div style="text-align: center; margin-top: 10px;">
+                <button class="filter-toggle" onclick="toggleFilterVisibility()" id="filterToggleBtn">フィルターを隠す</button>
+            </div>
+        </div>
+
+        <div class="filter-container" id="filterContainer">
+            <div class="filter-section">
+                <label class="filter-label">☆数で絞り込み</label>
+                <div class="star-filter-container" id="starFilterContainer"></div>
+            </div>
+
+            <div class="filter-section">
+                <label class="filter-label">タグで絞り込み (複数選択可能)</label>
+                <div class="tag-filter-container" id="tagFilterContainer"></div>
+            </div>
+
+            <div class="filter-actions">
+                <div class="filter-status" id="filterStatus"></div>
+                <div>
+                    <button class="filter-reset" onclick="resetFilters()">フィルターをリセット</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="categoryView" class="category-grid">
+            <div class="category-item" data-category="ふく">
+                <span class="category-text">ふく</span>
+                <img src="https://github.com/TaKaNaNDF/NDFsoubimatome/blob/main/%E3%81%B5%E3%81%8F.png?raw=true" alt="ふく" class="category-icon">
+            </div>
+            <div class="category-item" data-category="かお">
+                <span class="category-text">かお</span>
+                <img src="https://github.com/TaKaNaNDF/NDFsoubimatome/blob/main/%E3%81%82%E3%81%9F%E3%81%BE.png?raw=true" alt="かお" class="category-icon">
+            </div>
+            <div class="category-item" data-category="くび">
+                <span class="category-text">くび</span>
+                <img src="https://github.com/TaKaNaNDF/NDFsoubimatome/blob/main/%E3%81%8F%E3%81%B3.png?raw=true" alt="くび" class="category-icon">
+            </div>
+            <div class="category-item" data-category="うで">
+                <span class="category-text">うで</span>
+                <img src="https://github.com/TaKaNaNDF/NDFsoubimatome/blob/main/%E3%81%86%E3%81%A7.png?raw=true" alt="うで" class="category-icon">
+            </div>
+            <div class="category-item" data-category="せなか">
+                <span class="category-text">せなか</span>
+                <img src="https://github.com/TaKaNaNDF/NDFsoubimatome/blob/main/%E3%81%9B%E3%81%AA%E3%81%8B.png?raw=true" alt="せなか" class="category-icon">
+            </div>
+            <div class="category-item" data-category="あし">
+                <span class="category-text">あし</span>
+                <img src="https://github.com/TaKaNaNDF/NDFsoubimatome/blob/main/%E3%81%82%E3%81%97.png?raw=true" alt="あし" class="category-icon">
+            </div>
+        </div>
+
+        <div id="equipmentView" class="equipment-list">
+            <button class="back-button" onclick="showCategoryView()">← カテゴリ一覧に戻る</button>
+            <div id="categoryHeader" class="category-header"></div>
+            <div id="equipmentList"></div>
+            <div class="edit-buttons-container"></div>
+        </div>
+    </div>
 
     <script>
-        // データストレージ
         let equipmentData = [];
         let currentCategory = '';
-        
-        // フィルター関連の変数
         let selectedStars = new Set();
         let selectedFilterTags = new Set();
         let isFilterVisible = true;
 
-        // 初期化
         document.addEventListener('DOMContentLoaded', async function() {
             loadDataFromJSON();
         });
 
-        // --- 省略（あなたのJSそのまま） ---
+        function setupEventListeners() {
+            document.querySelectorAll('.category-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    const category = this.dataset.category;
+                    showEquipmentList(category);
+                });
+            });
 
-        // JSONデータ読み込み
+            document.getElementById('searchBox').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                if (searchTerm || selectedStars.size > 0 || selectedFilterTags.size > 0) {
+                    showFilteredResults();
+                } else {
+                    if (currentCategory) {
+                        showEquipmentList(currentCategory);
+                    } else {
+                        showCategoryView();
+                    }
+                }
+            });
+        }
+
+        function initializeFilters() {
+            const starContainer = document.getElementById('starFilterContainer');
+            starContainer.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const starElement = document.createElement('div');
+                starElement.className = 'star-checkbox';
+                starElement.innerHTML = `
+                    <input type="checkbox" id="star${i}" onchange="toggleStarFilter(${i})">
+                    <label for="star${i}">☆${i}</label>
+                `;
+                starContainer.appendChild(starElement);
+            }
+
+            updateTagFilters();
+            updateFilterStatus();
+        }
+
+        function getAllTags() {
+            const allTags = new Set();
+            const targetEquipment = currentCategory 
+                ? equipmentData.filter(item => item.category === currentCategory)
+                : equipmentData;
+            targetEquipment.forEach(item => {
+                item.tags.forEach(tag => allTags.add(tag));
+            });
+            return Array.from(allTags).sort();
+        }
+
+        function updateTagFilters() {
+            const tagContainer = document.getElementById('tagFilterContainer');
+            const allTags = getAllTags();
+            tagContainer.innerHTML = '';
+            if (allTags.length === 0) {
+                const noTagsText = currentCategory 
+                    ? `${currentCategory}にはタグがありません`
+                    : 'タグがありません';
+                tagContainer.innerHTML = `<div style="color: #999; font-style: italic;">${noTagsText}</div>`;
+                return;
+            }
+            allTags.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag-filter-item';
+                if (selectedFilterTags.has(tag)) {
+                    tagElement.classList.add('active');
+                }
+                tagElement.innerHTML = `
+                    <input type="checkbox" id="tag-${tag}" ${selectedFilterTags.has(tag) ? 'checked' : ''} onchange="toggleTagFilter('${tag}')">
+                    <label for="tag-${tag}">${tag}</label>
+                `;
+                tagContainer.appendChild(tagElement);
+            });
+        }
+
+        function toggleStarFilter(stars) {
+            const checkbox = document.getElementById(`star${stars}`);
+            const container = checkbox.parentElement;
+            if (selectedStars.has(stars)) {
+                selectedStars.delete(stars);
+                container.classList.remove('active');
+            } else {
+                selectedStars.add(stars);
+                container.classList.add('active');
+            }
+            updateFilterStatus();
+            applyFilters();
+        }
+
+        function toggleTagFilter(tag) {
+            const checkbox = document.getElementById(`tag-${tag}`);
+            const container = checkbox.parentElement;
+            if (selectedFilterTags.has(tag)) {
+                selectedFilterTags.delete(tag);
+                container.classList.remove('active');
+            } else {
+                selectedFilterTags.add(tag);
+                container.classList.add('active');
+            }
+            updateFilterStatus();
+            applyFilters();
+        }
+
+        function updateFilterStatus() {
+            const statusElement = document.getElementById('filterStatus');
+            const activeFilters = [];
+            if (selectedStars.size > 0) {
+                activeFilters.push(`☆数: ${Array.from(selectedStars).sort().join(', ')}`);
+            }
+            if (selectedFilterTags.size > 0) {
+                activeFilters.push(`タグ: ${Array.from(selectedFilterTags).join(', ')}`);
+            }
+            if (activeFilters.length > 0) {
+                const scope = currentCategory ? `（${currentCategory}内で）` : '（全体で）';
+                statusElement.innerText = `アクティブフィルター${scope}: ${activeFilters.join(' | ')}`;
+            } else {
+                const scope = currentCategory ? `（${currentCategory}内）` : '（全体）';
+                statusElement.innerText = `フィルターなし${scope}`;
+            }
+        }
+
+        function resetFilters() {
+            selectedStars.clear();
+            selectedFilterTags.clear();
+            document.querySelectorAll('.star-checkbox').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('input').checked = false;
+            });
+            document.querySelectorAll('.tag-filter-item').forEach(el => {
+                el.classList.remove('active');
+                el.querySelector('input').checked = false;
+            });
+            document.getElementById('searchBox').value = '';
+            updateFilterStatus();
+            if (currentCategory) {
+                showEquipmentList(currentCategory);
+            } else {
+                showCategoryView();
+            }
+        }
+
+        function toggleFilterVisibility() {
+            const container = document.getElementById('filterContainer');
+            const toggle = document.getElementById('filterToggleBtn');
+            if (isFilterVisible) {
+                container.classList.add('hidden');
+                toggle.innerText = 'フィルターを表示';
+                isFilterVisible = false;
+            } else {
+                container.classList.remove('hidden');
+                toggle.innerText = 'フィルターを隠す';
+                isFilterVisible = true;
+            }
+        }
+
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            let baseEquipment = currentCategory 
+                ? equipmentData.filter(item => item.category === currentCategory)
+                : equipmentData;
+            let filteredEquipment = baseEquipment.filter(item => {
+                const matchesText = !searchTerm || 
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.effect.toLowerCase().includes(searchTerm) ||
+                    item.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+                const matchesStars = selectedStars.size === 0 || selectedStars.has(item.stars);
+                const matchesTags = selectedFilterTags.size === 0 || 
+                    Array.from(selectedFilterTags).every(filterTag => 
+                        item.tags.includes(filterTag)
+                    );
+                return matchesText && matchesStars && matchesTags;
+            });
+            document.getElementById('categoryView').style.display = 'none';
+            document.getElementById('equipmentView').style.display = 'block';
+            updateCategoryHeader();
+            renderEquipmentList(filteredEquipment);
+        }
+
+        function showCategoryView() {
+            document.getElementById('categoryView').style.display = 'grid';
+            document.getElementById('equipmentView').style.display = 'none';
+            currentCategory = '';
+            updateTagFilters();
+            updateFilterStatus();
+        }
+
+        function showEquipmentList(category) {
+            currentCategory = category;
+            document.getElementById('categoryView').style.display = 'none';
+            document.getElementById('equipmentView').style.display = 'block';
+            updateCategoryHeader();
+            updateTagFilters();
+            updateFilterStatus();
+            const filteredEquipment = equipmentData.filter(item => item.category === category);
+            renderEquipmentList(filteredEquipment);
+        }
+
+        function updateCategoryHeader() {
+            const header = document.getElementById('categoryHeader');
+            if (currentCategory) {
+                header.innerText = `${currentCategory}の装備一覧`;
+                header.style.display = 'block';
+            } else {
+                header.style.display = 'none';
+            }
+        }
+
+        function renderEquipmentList(equipment) {
+            const container = document.getElementById('equipmentList');
+            if (equipment.length === 0) {
+                const noResultsText = currentCategory 
+                    ? `${currentCategory}で該当する装備が見つかりませんでした`
+                    : '該当する装備が見つかりませんでした';
+                container.innerHTML = `<div class="no-results">${noResultsText}</div>`;
+                return;
+            }
+            container.innerHTML = equipment.map(item => `
+                <div class="equipment-item">
+                    <img src="${item.image}" alt="${item.name}" class="equipment-image">
+                    <div class="equipment-info">
+                        <div class="equipment-header">
+                            <div class="star-rating">
+                                ${'★'.repeat(item.stars)}
+                            </div>
+                            <div class="equipment-name">${item.name}</div>
+                        </div>
+                        <div class="equipment-effect">${item.effect}</div>
+                        <div class="equipment-tags">
+                            ${item.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         async function loadDataFromJSON() {
             try {
-                // ★ここを相対パスに修正★
+                // ★ここを相対パスに修正しました★
                 const res = await fetch('./soubihyou.json', {
                     headers: {
                         'Cache-Control': 'no-cache'
@@ -67,9 +707,13 @@
                 equipmentData = [];
             } finally {
                 setupEventListeners();
-                initializeFilters(); // フィルターを初期化
+                initializeFilters();
                 showCategoryView();
             }
+        }
+
+        function showFilteredResults() {
+            applyFilters();
         }
     </script>
 </body>
