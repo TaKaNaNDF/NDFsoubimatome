@@ -736,6 +736,7 @@
         async function loadDataFromJSON() {
             try {
                 // GitHubのraw URLを使用してデータを読み込み
+                // soubihyou.jsonはraw.githubusercontent.comから直接取得するため、?raw=trueは不要です。
                 const res = await fetch('https://raw.githubusercontent.com/TaKaNaNDF/NDFsoubimatome/main/soubihyou.json', {
                     headers: {
                         'Cache-Control': 'no-cache'
